@@ -173,6 +173,8 @@ export const HERO_ASCII_PRESET: AsciiArtConfig = {
 type Props = Omit<ComponentProps<"canvas">, "ref"> & {
   config: AsciiArtConfig;
   sourceImage: string;
+  frameRate?: number;
+  pauseWhenOffscreen?: boolean;
 };
 
 type Rgb = { r: number; g: number; b: number };
@@ -802,7 +804,14 @@ function applyPostEffects(
   }
 }
 
-export function AsciiArtCanvas({ config, sourceImage, className, ...props }: Props) {
+export function AsciiArtCanvas({
+  config,
+  sourceImage,
+  className,
+  frameRate = 30,
+  pauseWhenOffscreen = true,
+  ...props
+}: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pointerRef = useRef({ x: 0.62, y: 0.46 });
 
@@ -814,7 +823,8 @@ export function AsciiArtCanvas({ config, sourceImage, className, ...props }: Pro
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const isTouch = window.matchMedia("(pointer: coarse)").matches;
     let reducedMotion = media.matches;
-    let visible = true;
+    let visible = !document.hidden;
+    let inViewport = true;
     let frame = 0;
     let lastFrame = 0;
     let width = 1;
@@ -832,7 +842,8 @@ export function AsciiArtCanvas({ config, sourceImage, className, ...props }: Pro
 
     const intersection = new IntersectionObserver(
       ([entry]) => {
-        visible = entry.isIntersecting;
+        inViewport = entry.isIntersecting;
+        visible = !document.hidden && (!pauseWhenOffscreen || inViewport);
         if (!visible && frame) {
           cancelAnimationFrame(frame);
           frame = 0;
@@ -843,6 +854,19 @@ export function AsciiArtCanvas({ config, sourceImage, className, ...props }: Pro
       { rootMargin: "120px" },
     );
     intersection.observe(canvas);
+
+    const onVisibilityChange = () => {
+      visible = !document.hidden && (!pauseWhenOffscreen || inViewport);
+      if (!visible && frame) {
+        cancelAnimationFrame(frame);
+        frame = 0;
+      } else if (visible && frame === 0 && !reducedMotion) {
+        frame = requestAnimationFrame(loop);
+      } else if (visible && image.complete) {
+        render(performance.now());
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     const resize = new ResizeObserver(([entry]) => {
       width = Math.max(1, Math.round(entry.contentRect.width));
@@ -1023,7 +1047,7 @@ export function AsciiArtCanvas({ config, sourceImage, className, ...props }: Pro
         return;
       }
       const shouldAnimate = (config.animated || config.renderMode === "matrix") && !reducedMotion;
-      if (time - lastFrame > 32 || !shouldAnimate) {
+      if (time - lastFrame >= 1000 / Math.max(1, frameRate) || !shouldAnimate) {
         lastFrame = time;
         render(time);
       }
@@ -1045,10 +1069,11 @@ export function AsciiArtCanvas({ config, sourceImage, className, ...props }: Pro
       intersection.disconnect();
       resize.disconnect();
       media.removeEventListener("change", onMotionChange);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       canvas.parentElement?.removeEventListener("pointermove", onPointerMove);
       image.removeEventListener("load", onImageReady);
     };
-  }, [config, sourceImage]);
+  }, [config, frameRate, pauseWhenOffscreen, sourceImage]);
 
   return (
     <canvas

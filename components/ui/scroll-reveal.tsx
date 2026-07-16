@@ -1,11 +1,12 @@
 "use client";
 
-import { motion, type HTMLMotionProps, useReducedMotion } from "framer-motion";
+import { motion, type HTMLMotionProps } from "framer-motion";
 
+import { usePrefersReducedMotion } from "@/components/effects/use-prefers-reduced-motion";
 import { cn } from "@/lib/utils";
 
 export function ScrollReveal({ className, ...props }: HTMLMotionProps<"div">) {
-  const reducedMotion = useReducedMotion();
+  const reducedMotion = usePrefersReducedMotion();
   return (
     <motion.div
       initial={{ opacity: 0, y: reducedMotion ? 4 : 22 }}
