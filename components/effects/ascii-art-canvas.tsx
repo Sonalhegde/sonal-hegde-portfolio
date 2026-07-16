@@ -108,11 +108,11 @@ export interface AsciiArtConfig {
 }
 
 export const HERO_ASCII_PRESET: AsciiArtConfig = {
-  renderMode: "pixel",
+  renderMode: "dither",
   bgMode: "solid",
   bgBlur: 12,
   bgOpacity: 90,
-  cellSize: 10,
+  cellSize: 14,
   coverage: 100,
   invert: true,
   styleBlend: "source-over",

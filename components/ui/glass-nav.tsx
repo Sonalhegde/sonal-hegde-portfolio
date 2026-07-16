@@ -8,8 +8,8 @@ const items = [
   { label: "Home", href: "#home" },
   { label: "Experience", href: "#experience" },
   { label: "Projects", href: "#projects" },
-  { label: "Education", href: "#education" },
   { label: "Certs", href: "#certifications" },
+  { label: "Education", href: "#education" },
   { label: "Contact", href: "#contact" },
 ];
 
@@ -52,7 +52,7 @@ export function GlassNav() {
         </div>
         <a href="mailto:sonalhhegde@gmail.com" className="hidden size-11 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/[0.05] text-neutral-300 hover:border-[#B497CF]/40 hover:text-[#c3f4ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B497CF] sm:flex" aria-label="Email Sonal Hegde"><Mail size={17} /></a>
         <motion.a href="/resume.pdf" target="_blank" rel="noopener noreferrer" download whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} transition={{ type: "spring", stiffness: 300, damping: 30 }} className="flex min-h-11 shrink-0 items-center gap-2 rounded-full border border-[#B497CF]/30 bg-[#B497CF]/10 px-3 text-xs font-medium text-neutral-100 hover:border-[#B497CF]/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B497CF] md:px-4">
-          <FileText size={15} aria-hidden="true" /><span className="hidden lg:inline">Résumé</span>
+          <FileText size={15} aria-hidden="true" /><span className="hidden lg:inline">CV</span>
         </motion.a>
       </nav>
     </header>

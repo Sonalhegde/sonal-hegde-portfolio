@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Bot, CornerDownLeft, MessageCircle, Sparkles, X } from "lucide-react";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
+import { portfolioFallbackAnswer } from "@/lib/portfolio-context";
+
 type Message = { role: "user" | "assistant"; content: string };
 
 const suggestions = ["What did Sonal build at NITK?", "Tell me about the marine-debris project", "What is Sonal’s embedded stack?"];
@@ -13,7 +15,7 @@ export function SiteAssistant() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "Hi — I’m Sonal’s portfolio guide. Ask me about the projects, research, stack, résumé, or contact details." },
+    { role: "assistant", content: "Hi — I’m Sonal’s portfolio guide. Ask me about the projects, research, stack, CV, or contact details." },
   ]);
   const inputRef = useRef<HTMLInputElement>(null);
   const transcriptRef = useRef<HTMLDivElement>(null);
@@ -45,10 +47,13 @@ export function SiteAssistant() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: nextMessages }),
       });
+      if (!response.ok || !(response.headers.get("content-type") ?? "").includes("application/json")) {
+        throw new Error("Static assistant fallback");
+      }
       const data = await response.json() as { reply?: string; error?: string };
       setMessages((current) => [...current, { role: "assistant", content: data.reply ?? data.error ?? "I couldn’t answer that just now. Please try again." }]);
     } catch {
-      setMessages((current) => [...current, { role: "assistant", content: "The assistant is temporarily offline. You can still reach Sonal at sonalhhegde@gmail.com." }]);
+      setMessages((current) => [...current, { role: "assistant", content: portfolioFallbackAnswer(trimmed) }]);
     } finally {
       setBusy(false);
     }

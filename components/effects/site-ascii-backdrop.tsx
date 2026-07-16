@@ -5,11 +5,13 @@ import { useEffect, useMemo, useState } from "react";
 import { AsciiArtCanvas, HERO_ASCII_PRESET } from "@/components/effects/ascii-art-canvas";
 
 function adaptiveCellSize(width: number) {
-  return Math.max(9, Math.round(width / 130));
+  // The tower needs deliberately chunky cells to retain the requested
+  // screen-printed/dithered character across both phone and desktop sizes.
+  return Math.max(14, Math.round(width / 105));
 }
 
 export function SiteAsciiBackdrop() {
-  const [cellSize, setCellSize] = useState(10);
+  const [cellSize, setCellSize] = useState(14);
 
   useEffect(() => {
     let timer = 0;
@@ -47,7 +49,7 @@ export function SiteAsciiBackdrop() {
     <div className="site-ascii-backdrop" aria-hidden="true">
       <AsciiArtCanvas
         config={config}
-        sourceImage="/hero-photo.png"
+        sourceImage="/tower-source.png"
         frameRate={24}
         pauseWhenOffscreen={false}
         className="h-[100dvh] w-[100dvw]"

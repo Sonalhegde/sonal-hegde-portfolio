@@ -24,5 +24,9 @@ test("server-renders Sonal Hegde's portfolio", async () => {
   assert.match(html, /Applied Cyber-Physical Systems/);
   assert.match(html, /Digital Twin-Based Smart Transportation/);
   assert.match(html, /Mangalore, India/);
+  assert.match(html, /Three\.js \/ WebGL/);
+  assert.match(html, />CV</);
+  assert.ok(html.indexOf('id="certifications"') < html.indexOf('id="education"'));
+  assert.doesNotMatch(html, /Hero visual mode|>ASCII</);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/);
 });

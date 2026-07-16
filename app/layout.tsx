@@ -1,17 +1,13 @@
 /* eslint-disable @next/next/no-page-custom-font */
 import type { Metadata, Viewport } from "next";
-import { headers } from "next/headers";
 
 import { AmbientCursor } from "@/components/effects/ambient-cursor";
 import { SiteAsciiBackdrop } from "@/components/effects/site-ascii-backdrop";
 
 import "./globals.css";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const requestHeaders = await headers();
-  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
-  const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
-  const metadataBase = new URL(`${protocol}://${host}`);
+export function generateMetadata(): Metadata {
+  const metadataBase = new URL("https://www.sonal.work.gd");
   const description =
     "Portfolio of Sonal Hegde, an Electronics & Communication Engineering undergraduate building embedded systems, cyber-physical research prototypes, edge AI, and digital twins.";
 
@@ -20,6 +16,8 @@ export async function generateMetadata(): Promise<Metadata> {
     title: "Sonal Hegde — Embedded Systems & Edge AI",
     description,
     authors: [{ name: "Sonal Hegde" }],
+    alternates: { canonical: "https://www.sonal.work.gd" },
+    robots: { index: true, follow: true },
     keywords: [
       "Sonal Hegde",
       "embedded systems",
@@ -52,6 +50,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <head>
+        <meta name="referrer" content="strict-origin-when-cross-origin" />
+        <meta
+          httpEquiv="Content-Security-Policy"
+          content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self'; worker-src 'self' blob:; media-src 'self'; form-action 'self'; upgrade-insecure-requests"
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Geist+Pixel&display=swap" rel="stylesheet" />

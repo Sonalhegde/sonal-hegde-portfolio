@@ -4,6 +4,7 @@
 import { motion } from "framer-motion";
 import {
   ArrowUpRight,
+  Award,
   BookOpen,
   CircuitBoard,
   Cpu,
@@ -23,11 +24,13 @@ import {
 import type { ReactNode } from "react";
 
 import { GeoGlobe } from "@/components/effects/geo-globe";
+import { ResearchMap } from "@/components/effects/research-map";
 import { Hero } from "@/components/sections/hero";
 import { Card, CardContent } from "@/components/ui/card";
 import { GlassButton } from "@/components/ui/glass-button";
 import { GlassNav } from "@/components/ui/glass-nav";
 import { InstitutionBadge } from "@/components/ui/institution-badge";
+import { MobileViewNotice } from "@/components/ui/mobile-view-notice";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { Section } from "@/components/ui/section";
 import { SiteAssistant } from "@/components/ui/site-assistant";
@@ -55,7 +58,7 @@ const experiences = [
     index: "02",
     title: "Research Intern — Marine Debris Detection with YOLOv8",
     organization: <InstitutionBadge icon="🇴🇲">Sultan Qaboos University, Muscat, Oman</InstitutionBadge>,
-    meta: "Internship project · Date not listed in résumé",
+    meta: "Internship project · Date not listed in CV",
     icon: <Waves size={18} aria-hidden="true" />,
     bullets: [
       "Built and trained a YOLOv8 computer-vision pipeline to detect and localize marine debris in drone imagery.",
@@ -132,17 +135,19 @@ interface Certification {
   featured?: boolean;
 }
 
-// Official issuer-domain assets. TODO: replace [[DATE_ISSUED]] and add [[CREDENTIAL_URL]] when Sonal provides verified records.
+// Issuer-hosted marks are used without alteration. LinkedIn's public profile did not
+// expose verifiable issue dates, so these are the user-approved year-only fallbacks.
+// TODO: replace the year-only values and add credentialUrl when verified records are available.
 const certifications: Certification[] = [
-  { title: "Atlassian Certified Product Management Professional", issuer: "LinkedIn Learning & Atlassian", issuerLogoUrl: "https://www.atlassian.com/favicon.ico", dateIssued: "Issue date not listed in résumé", featured: true },
-  { title: "McKinsey Forward Program", issuer: "McKinsey.org", issuerLogoUrl: "https://www.mckinsey.org/favicon.ico", dateIssued: "Issue date not listed in résumé" },
-  { title: "Network Security Fundamentals", issuer: "Palo Alto Networks", issuerLogoUrl: "https://www.paloaltonetworks.com/favicon.ico", dateIssued: "Issue date not listed in résumé", featured: true },
-  { title: "Introduction to MCP (Model Context Protocol)", issuer: "Anthropic", issuerLogoUrl: "https://www.anthropic.com/favicon.ico", dateIssued: "Issue date not listed in résumé" },
-  { title: "AI on Jetson Nano", issuer: "NVIDIA", issuerLogoUrl: "https://www.nvidia.com/favicon.ico", dateIssued: "Issue date not listed in résumé" },
-  { title: "AWS IoT Devices", issuer: "Amazon Web Services", issuerLogoUrl: "https://aws.amazon.com/favicon.ico", dateIssued: "Issue date not listed in résumé" },
-  { title: "Networking Basics", issuer: "Cisco", issuerLogoUrl: "https://www.cisco.com/favicon.ico", dateIssued: "Issue date not listed in résumé", featured: true },
-  { title: "Data Science & Analytics", issuer: "HP LIFE", issuerLogoUrl: "https://www.life-global.org/favicon.ico", dateIssued: "Issue date not listed in résumé" },
-  { title: "Time Series Analysis", issuer: "Infosys", issuerLogoUrl: "https://www.infosys.com/favicon.ico", dateIssued: "Issue date not listed in résumé" },
+  { title: "Atlassian Certified Product Management Professional", issuer: "LinkedIn Learning & Atlassian", issuerLogoUrl: "/certifications/atlassian.ico", dateIssued: "2026", featured: true },
+  { title: "McKinsey Forward Program", issuer: "McKinsey.org", issuerLogoUrl: "/certifications/mckinsey.ico", dateIssued: "2026" },
+  { title: "Network Security Fundamentals", issuer: "Palo Alto Networks", issuerLogoUrl: "/certifications/palo-alto.ico", dateIssued: "2026", featured: true },
+  { title: "Introduction to MCP (Model Context Protocol)", issuer: "Anthropic", issuerLogoUrl: "/certifications/anthropic.ico", dateIssued: "2026" },
+  { title: "AI on Jetson Nano", issuer: "NVIDIA", issuerLogoUrl: "/certifications/nvidia.ico", dateIssued: "2025" },
+  { title: "AWS IoT Devices", issuer: "Amazon Web Services", issuerLogoUrl: "/certifications/aws.ico", dateIssued: "2025" },
+  { title: "Networking Basics", issuer: "Cisco", issuerLogoUrl: "/certifications/cisco.ico", dateIssued: "2025", featured: true },
+  { title: "Data Science & Analytics", issuer: "HP LIFE", issuerLogoUrl: "/certifications/hp-life.ico", dateIssued: "2025" },
+  { title: "Time Series Analysis", issuer: "Infosys", issuerLogoUrl: "https://www.infosys.com/favicon.ico", dateIssued: "2025" },
 ];
 
 function SectionHeading({ eyebrow, title, copy }: { eyebrow: string; title: string; copy?: string }) {
@@ -172,9 +177,9 @@ export function Portfolio() {
             <Card className="overflow-hidden">
               <CardContent className="grid gap-8 p-6 md:grid-cols-[1.35fr_.65fr] md:p-10">
                 <div className="max-w-4xl text-base leading-8 text-neutral-200 md:text-lg md:leading-9">
-                  <p>I’m Sonal Hegde, an embedded systems engineer and edge-AI builder based in Mangalore, India. I turn sensor data and camera feeds into real-time decisions on constrained hardware — from firmware-level driver work to on-device computer-vision pipelines.</p>
-                  <p className="mt-4 text-[#a3a8b8]">My recent focus includes applied cyber-physical systems at <InstitutionBadge icon="🇮🇳">National Institute of Technology Karnataka, Surathkal</InstitutionBadge> and marine debris detection with YOLOv8 at the edge through work carried out at <InstitutionBadge icon="🇴🇲">Sultan Qaboos University</InstitutionBadge>. I’m also exploring computer networks and how distributed systems coordinate at scale.</p>
-                  <p className="mt-4 text-[#a3a8b8]">I’m currently pursuing a B.Tech in Electronics & Communication Engineering, expected in 2028, and I’m looking to contribute to embedded, edge-AI, and cyber-physical research teams.</p>
+                  <p>I’m Sonal Hegde, an Electronics and Communication Engineering undergraduate focused on embedded systems and edge AI, based in Mangalore, India. I design and validate end-to-end systems that turn sensor data and camera feeds into reliable, real-time decisions on constrained hardware — from firmware-level drivers and networked sensor nodes to optimized computer-vision pipelines.</p>
+                  <p className="mt-4 text-[#a3a8b8]">My recent work spans applied cyber-physical systems at <InstitutionBadge icon="🇮🇳">National Institute of Technology Karnataka, Surathkal</InstitutionBadge> and edge-deployed marine-debris detection with YOLOv8 through work carried out at <InstitutionBadge icon="🇴🇲">Sultan Qaboos University</InstitutionBadge>. I am also developing a deeper interest in computer networks and in the coordination of distributed systems at scale.</p>
+                  <p className="mt-4 text-[#a3a8b8]">I am pursuing a B.Tech in Electronics & Communication Engineering, expected in 2028. I am open to internships and early-career opportunities in embedded engineering, edge AI, cyber-physical systems, IoT, and computer networks, as well as technology consulting and product-development roles where I can translate complex technical problems into robust, scalable products.</p>
                   <div className="mt-7 flex flex-wrap gap-2">{profileKeywords.map((item) => <TechTag key={item}>{item}</TechTag>)}</div>
                 </div>
                 <div className="lab-readout rounded-2xl border border-white/10 bg-black/35 p-5 font-mono text-[11px] uppercase tracking-[0.14em] text-neutral-500">
@@ -218,9 +223,32 @@ export function Portfolio() {
           </ScrollReveal>
         </Section>
 
+        <Section id="certifications">
+          <ScrollReveal>
+            <SectionHeading eyebrow="Credentials // 03" title="Certifications." copy="Credential titles are drawn from the CV. Years are shown at the requested year-only granularity; exact issue dates and verification links can be added when available." />
+            <div className="grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {certifications.map((certification) => (
+                <Card key={certification.title} className={certification.featured ? "cert-card featured sm:row-span-1" : "cert-card"}>
+                  <CardContent className="flex h-full flex-col p-6">
+                    <div className="flex items-start justify-between gap-4">
+                      <span className="relative flex size-12 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/90 p-2 text-[#1e6fff]">
+                        <Award size={22} aria-hidden="true" />
+                        <img src={certification.issuerLogoUrl} alt={`${certification.issuer} logo`} loading="lazy" decoding="async" referrerPolicy="no-referrer" className="absolute inset-2 h-8 w-8 object-contain" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+                      </span>
+                      {certification.featured && <span className="rounded-full border border-[#B497CF]/35 bg-[#B497CF]/10 px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.12em] text-[#c3f4ff]">Industry recognized</span>}
+                    </div>
+                    <h3 className="mt-6 text-lg font-medium leading-6 text-neutral-100">{certification.title}</h3><p className="mt-3 text-sm text-[#B497CF]">{certification.issuer}</p><p className="mt-2 flex-1 text-[11px] text-neutral-500">Issued {certification.dateIssued}</p>
+                    {certification.credentialUrl && <a href={certification.credentialUrl} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 text-xs text-[#c3f4ff]">Verify credential <ExternalLink size={12} /></a>}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </ScrollReveal>
+        </Section>
+
         <Section id="education">
           <ScrollReveal>
-            <SectionHeading eyebrow="Education // 03" title="The engineering foundation." />
+            <SectionHeading eyebrow="Education // 04" title="The engineering foundation." />
             <div className="grid gap-4">
               {[
                 { title: "B.Tech, Electronics & Communication Engineering", school: "NMAM Institute of Technology · affiliated to Nitte, Deemed to be University · Karnataka", meta: "Expected 2028" },
@@ -233,44 +261,28 @@ export function Portfolio() {
 
         <Section id="skills">
           <ScrollReveal>
-            <SectionHeading eyebrow="Toolchain // 04" title="From buses to browsers." copy="A compact working stack for instrumenting, connecting, modeling, and presenting cyber-physical systems." />
+            <SectionHeading eyebrow="Toolchain // 05" title="From buses to browsers." copy="A compact working stack for instrumenting, connecting, modeling, and presenting cyber-physical systems." />
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{skillGroups.map((group, index) => <Card key={group.title} className={index === 1 ? "xl:row-span-2" : ""}><CardContent className="p-6"><div className="flex items-center justify-between"><h3 className="geist-pixel-heading text-sm tracking-[0.08em] text-neutral-200">{group.title}</h3><span className="font-mono text-[9px] text-neutral-600">0{index + 1}</span></div><div className="mt-5 flex flex-wrap gap-2">{group.items.map((item) => <TechTag key={item}>{item}</TechTag>)}</div></CardContent></Card>)}</div>
           </ScrollReveal>
         </Section>
 
         <Section id="professional-skills">
           <ScrollReveal>
-            <SectionHeading eyebrow="Practice // 05" title="Skills beyond the stack." copy="Professional habits that help research prototypes move from an idea to a shared, testable system." />
+            <SectionHeading eyebrow="Practice // 06" title="Skills beyond the stack." copy="Professional habits that help research prototypes move from an idea to a shared, testable system." />
             <Card><CardContent className="flex flex-wrap gap-3 p-6 md:p-9">{professionalSkills.map((skill) => <span key={skill} className="glass-pill inline-flex min-h-11 items-center px-4 text-sm text-neutral-200">{skill}</span>)}</CardContent></Card>
-          </ScrollReveal>
-        </Section>
-
-        <Section id="certifications">
-          <ScrollReveal>
-            <SectionHeading eyebrow="Credentials // 06" title="Certifications." copy="Verified titles from the uploaded résumé. Issue dates and credential links are intentionally left unclaimed where the source does not list them." />
-            <div className="grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {certifications.map((certification) => (
-                <Card key={certification.title} className={certification.featured ? "cert-card featured sm:row-span-1" : "cert-card"}>
-                  <CardContent className="flex h-full flex-col p-6">
-                    <div className="flex items-start justify-between gap-4"><span className="flex size-12 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/90 p-2"><img src={certification.issuerLogoUrl} alt={`${certification.issuer} logo`} className="max-h-full max-w-full object-contain" onError={(event) => { event.currentTarget.style.display = "none"; }} /></span>{certification.featured && <span className="rounded-full border border-[#B497CF]/35 bg-[#B497CF]/10 px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.12em] text-[#c3f4ff]">Industry recognized</span>}</div>
-                    <h3 className="mt-6 text-lg font-medium leading-6 text-neutral-100">{certification.title}</h3><p className="mt-3 text-sm text-[#B497CF]">{certification.issuer}</p><p className="mt-2 flex-1 text-[11px] text-neutral-500">{certification.dateIssued}</p>
-                    {certification.credentialUrl && <a href={certification.credentialUrl} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 text-xs text-[#c3f4ff]">Verify credential <ExternalLink size={12} /></a>}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
           </ScrollReveal>
         </Section>
 
         <Section id="contact">
           <ScrollReveal>
-            <Card className="contact-card relative overflow-hidden"><CardContent className="relative z-10 grid gap-8 p-7 md:grid-cols-[1fr_auto] md:items-end md:p-12"><div><p className="section-kicker">Signal open // 07</p><h2 className="geist-pixel-heading mt-4 max-w-3xl text-3xl tracking-[-0.03em] text-neutral-50 sm:text-4xl md:text-5xl">Let’s build something that senses, thinks, and responds.</h2><a href={MAILTO} className="mt-6 inline-block text-sm text-neutral-300 underline decoration-white/20 underline-offset-4 hover:text-[#c3f4ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B497CF]">sonalhhegde@gmail.com</a><a href={GMAIL_COMPOSE} target="_blank" rel="noopener noreferrer" className="ml-4 inline-flex items-center gap-1.5 text-xs text-[#B497CF] hover:text-[#c3f4ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B497CF]">Open in Gmail <ExternalLink size={11} /></a></div><div className="flex flex-wrap gap-3 md:max-w-[360px] md:justify-end"><GlassButton href="https://github.com/sonalhegde" target="_blank" rel="noreferrer" icon={<Github size={17} />}>GitHub</GlassButton><GlassButton href="https://linkedin.com/in/sonalhegde" target="_blank" rel="noreferrer" icon={<Linkedin size={17} />}>LinkedIn</GlassButton><GlassButton href={MAILTO} icon={<Mail size={17} />}>Email</GlassButton><GlassButton href="/resume.pdf" target="_blank" rel="noopener noreferrer" download icon={<FileText size={17} />}>Résumé</GlassButton></div></CardContent></Card>
+            <Card className="contact-card relative overflow-hidden"><CardContent className="relative z-10 grid gap-8 p-7 md:grid-cols-[1fr_auto] md:items-end md:p-12"><div><p className="section-kicker">Signal open // 07</p><h2 className="geist-pixel-heading mt-4 max-w-3xl text-3xl tracking-[-0.03em] text-neutral-50 sm:text-4xl md:text-5xl">Let’s build something that senses, thinks, and responds.</h2><a href={MAILTO} className="mt-6 inline-block text-sm text-neutral-300 underline decoration-white/20 underline-offset-4 hover:text-[#c3f4ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B497CF]">sonalhhegde@gmail.com</a><a href={GMAIL_COMPOSE} target="_blank" rel="noopener noreferrer" className="ml-4 inline-flex items-center gap-1.5 text-xs text-[#B497CF] hover:text-[#c3f4ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B497CF]">Open in Gmail <ExternalLink size={11} /></a></div><div className="flex flex-wrap gap-3 md:max-w-[360px] md:justify-end"><GlassButton href="https://github.com/sonalhegde" target="_blank" rel="noreferrer" icon={<Github size={17} />}>GitHub</GlassButton><GlassButton href="https://linkedin.com/in/sonalhegde" target="_blank" rel="noreferrer" icon={<Linkedin size={17} />}>LinkedIn</GlassButton><GlassButton href={MAILTO} icon={<Mail size={17} />}>Email</GlassButton><GlassButton href="/resume.pdf" target="_blank" rel="noopener noreferrer" download icon={<FileText size={17} />}>CV</GlassButton></div></CardContent></Card>
           </ScrollReveal>
         </Section>
 
         <Section id="location" className="pb-12 md:pb-20">
           <ScrollReveal>
-            <div className="text-center"><p className="section-kicker justify-center">Location node // online</p><h2 className="geist-pixel-heading mt-4 text-3xl text-neutral-100 md:text-5xl">Based in Mangalore, India</h2><p className="mx-auto mt-4 max-w-xl text-sm text-[#a3a8b8]">The globe uses the verified coordinates 12.9141° N, 74.8560° E. Drag to rotate, then scroll or pinch to zoom.</p></div>
+            <div className="text-center"><p className="section-kicker justify-center">Location node // online</p><h2 className="geist-pixel-heading mt-4 text-3xl text-neutral-100 md:text-5xl">Based in Mangalore, India</h2><p className="mx-auto mt-4 max-w-2xl text-sm text-[#a3a8b8]">A real-world research map connects my home node with NITK Surathkal and Sultan Qaboos University. The interactive globe then locates Mangalore at 12.9141° N, 74.8560° E.</p></div>
+            <ResearchMap />
             <GeoGlobe />
             <div className="relative z-10 -mt-8 flex justify-center"><GlassButton staticLabel role="note" icon={<MapPin size={16} />}>Mangalore, Karnataka, India</GlassButton></div>
           </ScrollReveal>
@@ -278,6 +290,7 @@ export function Portfolio() {
       </main>
 
       <footer className="mx-auto max-w-7xl px-6 pb-28"><div className="flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-[10px] uppercase tracking-[0.14em] text-neutral-500 sm:flex-row"><span>© 2026 Sonal Hegde</span><span>Circuits · Code · Cognition</span></div></footer>
+      <MobileViewNotice />
       <SiteAssistant />
     </div>
   );
