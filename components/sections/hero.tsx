@@ -20,7 +20,7 @@ export function Hero() {
       <Card className="hero-card relative mx-auto min-h-[780px] w-full max-w-7xl overflow-hidden border-white/15 bg-[#07080c]/60 md:min-h-[720px]">
         <div className="hero-robot-glow absolute right-0 top-12 z-[1] h-[34rem] w-full opacity-90 sm:inset-y-0 sm:top-0 sm:h-auto sm:w-[72%] lg:w-[60%]">
           <SplineScene
-            scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+            scene="/hero-robot.splinecode"
             className="h-full w-full"
           />
         </div>

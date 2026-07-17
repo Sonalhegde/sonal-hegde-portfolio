@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -14,7 +14,17 @@ if (!existsSync(clientDirectory) || !existsSync(serverEntry)) {
 if (relative(root, outputDirectory) !== "surge-dist") {
   throw new Error("Refusing to clean an unexpected static export directory.");
 }
-rmSync(outputDirectory, { recursive: true, force: true });
+try {
+  rmSync(outputDirectory, { recursive: true, force: true });
+} catch (error) {
+  if (error?.code !== "EPERM" || !existsSync(outputDirectory)) throw error;
+
+  // A Windows preview server can keep the directory itself open while still
+  // allowing its generated contents to be replaced safely.
+  for (const entry of readdirSync(outputDirectory)) {
+    rmSync(resolve(outputDirectory, entry), { recursive: true, force: true });
+  }
+}
 mkdirSync(outputDirectory, { recursive: true });
 cpSync(clientDirectory, outputDirectory, { recursive: true, force: true });
 

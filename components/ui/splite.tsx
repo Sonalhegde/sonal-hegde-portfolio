@@ -3,9 +3,6 @@
 import { Component, Suspense, lazy, type ReactNode } from "react";
 
 const Spline = lazy(() => import("@splinetool/react-spline"));
-const RobotFallback = lazy(() =>
-  import("@/components/effects/robot-3d").then((module) => ({ default: module.Robot3D })),
-);
 
 interface SplineSceneProps {
   scene: string;
@@ -20,11 +17,13 @@ function SceneLoader() {
   );
 }
 
-function LocalRobotFallback() {
+function SceneUnavailable() {
   return (
-    <Suspense fallback={<SceneLoader />}>
-      <RobotFallback />
-    </Suspense>
+    <div className="flex h-full w-full items-center justify-center px-6 text-center" role="status">
+      <p className="max-w-xs font-mono text-[10px] uppercase tracking-[0.16em] text-neutral-500">
+        Interactive 3D scene unavailable
+      </p>
+    </div>
   );
 }
 
@@ -38,9 +37,8 @@ class SplineErrorBoundary extends Component<
     return { failed: true };
   }
 
-  componentDidCatch() {
-    // The remote scene is decorative. A local robot keeps the portfolio usable
-    // when Spline's CDN, CORS policy, or scene URL is temporarily unavailable.
+  componentDidCatch(error: Error) {
+    console.error("Spline scene failed to load", error);
   }
 
   componentDidUpdate(previous: Readonly<{ children: ReactNode; scene: string }>) {
@@ -50,7 +48,7 @@ class SplineErrorBoundary extends Component<
   }
 
   render() {
-    return this.state.failed ? <LocalRobotFallback /> : this.props.children;
+    return this.state.failed ? <SceneUnavailable /> : this.props.children;
   }
 }
 

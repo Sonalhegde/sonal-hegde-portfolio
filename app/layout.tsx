@@ -57,7 +57,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta name="referrer" content="strict-origin-when-cross-origin" />
         <meta
           httpEquiv="Content-Security-Policy"
-          content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://ipwho.is https://ipapi.co https://prod.spline.design https://*.spline.design; worker-src 'self' blob:; media-src 'self'; form-action 'self'; upgrade-insecure-requests"
+          content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://ipwho.is https://ipapi.co https://prod.spline.design https://*.spline.design https://unpkg.com; worker-src 'self' blob:; media-src 'self'; form-action 'self'"
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
