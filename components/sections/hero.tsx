@@ -52,7 +52,7 @@ export function Hero() {
 
             <motion.div initial={{ opacity: 0, y: reducedMotion ? 0 : 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reducedMotion ? 0.14 : 1.24, duration: 0.35 }} className="mt-7 flex flex-wrap gap-3">
               <GlassButton href="#projects" icon={<ArrowDown size={16} aria-hidden="true" />}>Explore systems</GlassButton>
-              <GlassButton href="/resume.pdf" target="_blank" rel="noopener noreferrer" download icon={<FileText size={16} aria-hidden="true" />}>CV</GlassButton>
+              <GlassButton href="/cv" target="_blank" rel="noopener noreferrer" download="Sonal-Hegde-CV.pdf" icon={<FileText size={16} aria-hidden="true" />}>CV</GlassButton>
               <GlassButton href="https://github.com/sonalhegde" target="_blank" rel="noreferrer" icon={<GitBranch size={16} aria-hidden="true" />} aria-label="Open Sonal Hegde’s GitHub">GitHub</GlassButton>
               <GlassButton href="https://linkedin.com/in/sonalhegde" target="_blank" rel="noreferrer" icon={<Network size={16} aria-hidden="true" />} className="hidden sm:inline-flex" aria-label="Open Sonal Hegde’s LinkedIn">LinkedIn</GlassButton>
               <GlassButton href="mailto:sonalhhegde@gmail.com" icon={<Mail size={16} aria-hidden="true" />} className="hidden sm:inline-flex">Email</GlassButton>

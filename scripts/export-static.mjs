@@ -1,5 +1,5 @@
-import { cpSync, existsSync, mkdirSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 const root = resolve(import.meta.dirname, "..");
@@ -11,6 +11,10 @@ if (!existsSync(clientDirectory) || !existsSync(serverEntry)) {
   throw new Error("Run the production build before exporting the Surge artifact.");
 }
 
+if (relative(root, outputDirectory) !== "surge-dist") {
+  throw new Error("Refusing to clean an unexpected static export directory.");
+}
+rmSync(outputDirectory, { recursive: true, force: true });
 mkdirSync(outputDirectory, { recursive: true });
 cpSync(clientDirectory, outputDirectory, { recursive: true, force: true });
 

@@ -15,6 +15,10 @@ export function generateMetadata(): Metadata {
     title: "Sonal Hegde — Embedded Systems & Edge AI",
     description,
     authors: [{ name: "Sonal Hegde" }],
+    icons: {
+      icon: [{ url: "/favicon.ico", type: "image/x-icon" }],
+      shortcut: "/favicon.ico",
+    },
     alternates: { canonical: "https://www.sonal.work.gd" },
     robots: { index: true, follow: true },
     keywords: [
