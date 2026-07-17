@@ -12,7 +12,7 @@ A cinematic, accessible engineering portfolio for Sonal Hegde, focused on embedd
 - Full-viewport Canvas2D dither renderer with a 24 fps adaptive cell budget
 - Original full-body Three.js humanoid with weighted pointer-reactive head tracking
 - GSAP pill navigation, Framer Motion reveals, and reduced-motion support
-- D3/TopoJSON research map with Karkala and approximate visitor-location context
+- D3/TopoJSON research map with a privacy-safe India marker and approximate visitor-location context
 - Portfolio-scoped FAQ assistant with a server API and deterministic static fallback
 - Responsive layouts, keyboard focus states, and a mobile viewing notice
 

@@ -2,19 +2,15 @@
 
 import { motion } from "framer-motion";
 import { ArrowDown, FileText, GitBranch, Mail, Network, RadioTower } from "lucide-react";
-import { lazy, Suspense } from "react";
 
 import { GlitterName } from "@/components/effects/glitter-name";
 import { usePrefersReducedMotion } from "@/components/effects/use-prefers-reduced-motion";
 import { Card } from "@/components/ui/card";
 import { BorderGlow } from "@/components/ui/border-glow";
 import { GlassButton } from "@/components/ui/glass-button";
+import { SplineScene } from "@/components/ui/splite";
 import { Spotlight } from "@/components/ui/spotlight";
 import { SpecularButton } from "@/components/ui/specular-button";
-
-const HeroRobot = lazy(() =>
-  import("@/components/effects/robot-3d").then((module) => ({ default: module.HeroRobot })),
-);
 
 export function Hero() {
   const reducedMotion = usePrefersReducedMotion();
@@ -23,9 +19,10 @@ export function Hero() {
     <section id="home" className="relative scroll-mt-28 px-3 pt-24 md:px-6 md:pt-28">
       <Card className="hero-card relative mx-auto min-h-[780px] w-full max-w-7xl overflow-hidden border-white/15 bg-[#07080c]/60 md:min-h-[720px]">
         <div className="hero-robot-glow absolute right-0 top-12 z-[1] h-[34rem] w-full opacity-90 sm:inset-y-0 sm:top-0 sm:h-auto sm:w-[72%] lg:w-[60%]">
-          <Suspense fallback={<div className="h-full w-full" aria-hidden="true" />}>
-            <HeroRobot />
-          </Suspense>
+          <SplineScene
+            scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
+            className="h-full w-full"
+          />
         </div>
 
         <div className="hero-grid-overlay absolute inset-0" aria-hidden="true" />
@@ -39,7 +36,7 @@ export function Hero() {
               <span className="glass-pill inline-flex min-h-9 items-center gap-2 px-3 text-[10px] uppercase tracking-[0.2em] text-neutral-300">
                 <RadioTower size={13} className="text-[#c3f4ff]" aria-hidden="true" /> Embedded systems · Edge AI
               </span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-500">node://mangalore.in</span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-500">node://india</span>
             </motion.div>
 
             <GlitterName />

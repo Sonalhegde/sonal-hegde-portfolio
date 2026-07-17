@@ -23,7 +23,9 @@ type GeoPayload = {
   timezone?: string | { id?: string };
 };
 
-const KARKALA: [number, number] = [74.992, 13.2143];
+// Intentionally retains the regional coordinate while exposing only the
+// country-level label to protect the portfolio owner's precise location.
+const INDIA_BASE: [number, number] = [74.992, 13.2143];
 const topology = worldTopology as unknown as Topology;
 const land = feature(topology, topology.objects.land as GeometryObject);
 
@@ -135,7 +137,7 @@ export function ResearchMap() {
       context.beginPath(); path(land);
       context.fillStyle = "rgba(195,244,255,.1)"; context.fill();
       context.strokeStyle = "rgba(195,244,255,.42)"; context.stroke();
-      marker(KARKALA, "Karkala · portfolio base", "rgba(195,244,255,1)", now, "left");
+      marker(INDIA_BASE, "India · portfolio base", "rgba(195,244,255,1)", now, "left");
       const current = visitorRef.current;
       if (current) marker([current.longitude, current.latitude], "Visitor signal", "rgba(52,211,153,1)", now + 800, "right");
     };
@@ -163,9 +165,9 @@ export function ResearchMap() {
 
   return (
     <figure className="research-map-shell relative overflow-hidden">
-      <canvas ref={canvasRef} className="h-full w-full" role="img" aria-label="World map showing Sonal's portfolio base in Karkala and the current visitor's approximate IP-based location" />
+      <canvas ref={canvasRef} className="h-full w-full" role="img" aria-label="World map showing Sonal's portfolio base in India and the current visitor's approximate IP-based location" />
       <div className="pointer-events-none absolute inset-x-4 bottom-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/55 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.1em] text-neutral-400 backdrop-blur-md">
-        <span><span className="mr-2 inline-block size-2 rounded-full bg-[#c3f4ff] shadow-[0_0_10px_#c3f4ff]" />Karkala, India</span>
+        <span><span className="mr-2 inline-block size-2 rounded-full bg-[#c3f4ff] shadow-[0_0_10px_#c3f4ff]" />India</span>
         {visitor ? <span><span className="mr-2 inline-block size-2 animate-pulse rounded-full bg-emerald-400" />{visitor.city}, {visitor.country} · <span ref={clockRef}>--:--:--</span> {visitor.timezone}</span> : <span>Visitor signal unavailable</span>}
       </div>
       <figcaption className="sr-only">Approximate visitor location is derived from IP data without requesting precise device location or storing personal information.</figcaption>

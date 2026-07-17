@@ -139,6 +139,14 @@ body::before {
 }
 .pill-nav-mobile.active { color: #fff; background: rgba(195,244,255,.1); }
 
+#mobile-pill-menu {
+  max-height: calc(100dvh - 6.5rem);
+  overflow-y: auto;
+  border-color: rgba(195, 244, 255, 0.16);
+  background: rgba(7, 8, 12, 0.96);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.62);
+}
+
 .border-glow {
   --glow-x: 50%;
   --glow-y: 50%;
@@ -813,9 +821,9 @@ body::before {
     backdrop-filter: blur(14px) saturate(130%);
   }
   .mobile-view-notice {
-    top: 5.25rem;
+    top: auto;
     right: 0.65rem;
-    bottom: auto;
+    bottom: 4.75rem;
     left: 0.65rem;
   }
   .research-map-shell { height: 21rem; }

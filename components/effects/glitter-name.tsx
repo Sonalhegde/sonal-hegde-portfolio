@@ -55,7 +55,7 @@ export function GlitterName() {
   }, [reducedMotion]);
 
   return (
-    <h1 aria-label="Sonal Hegde" className="geist-pixel-heading metallic-name relative flex flex-wrap text-[clamp(3.35rem,9vw,7.6rem)] leading-[0.84] tracking-[-0.06em]">
+    <h1 aria-label="Sonal Hegde" className="geist-pixel-heading metallic-name relative flex flex-nowrap whitespace-nowrap text-[clamp(2.25rem,10.5vw,3rem)] leading-[0.9] tracking-[-0.06em] sm:text-[clamp(3.35rem,9vw,7.6rem)] sm:leading-[0.84]">
       {letters.map((letter, index) => {
         const landed = reducedMotion || locked[index];
         return (
