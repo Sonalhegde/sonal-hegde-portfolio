@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 
 import { AmbientCursor } from "@/components/effects/ambient-cursor";
 import { SiteAsciiBackdrop } from "@/components/effects/site-ascii-backdrop";
+import { SitePreloader } from "@/components/ui/site-preloader";
 
 import "./globals.css";
 
@@ -65,6 +66,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link href="https://fonts.googleapis.com/css2?family=Geist+Pixel&display=swap" rel="stylesheet" />
       </head>
       <body>
+        <SitePreloader />
         <SiteAsciiBackdrop />
         {children}
         <AmbientCursor />

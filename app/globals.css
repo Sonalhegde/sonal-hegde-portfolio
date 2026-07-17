@@ -677,6 +677,106 @@ body::before {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+.site-loading {
+  overflow: hidden;
+}
+
+.site-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  display: grid;
+  place-content: center;
+  gap: 1.75rem;
+  background:
+    radial-gradient(circle at 50% 46%, rgba(30, 111, 255, 0.14), transparent 24rem),
+    radial-gradient(circle at 42% 54%, rgba(180, 151, 207, 0.11), transparent 19rem),
+    #07080c;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 500ms ease, visibility 500ms ease;
+}
+
+.site-preloader.is-leaving {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.site-preloader__halo {
+  position: relative;
+  width: 13rem;
+  height: 6.5rem;
+  transform: scaleY(0.58);
+  animation: preloader-breathe 1.8s ease-in-out infinite;
+}
+
+.site-preloader__halo::before {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 4.8rem;
+  height: 1px;
+  content: "";
+  transform: translate(-50%, -50%);
+  background: linear-gradient(90deg, transparent, rgba(195, 244, 255, 0.42), transparent);
+  box-shadow: 0 0 20px rgba(195, 244, 255, 0.16);
+}
+
+.site-preloader__halo span {
+  --angle: calc(var(--dot-index) * 30deg);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 9999px;
+  background: #B497CF;
+  box-shadow: 0 0 18px rgba(180, 151, 207, 0.38);
+  transform: translate(-50%, -50%) rotate(var(--angle)) translateX(5.5rem) scaleY(1.72);
+  animation: preloader-dot 1.35s ease-in-out infinite;
+  animation-delay: calc(var(--dot-index) * -90ms);
+}
+
+.site-preloader__halo span:nth-child(3n + 1) {
+  width: 1rem;
+  height: 1rem;
+  background: #c3f4ff;
+}
+
+.site-preloader__halo span:nth-child(4n + 2) {
+  width: 0.56rem;
+  height: 0.56rem;
+  background: #1e6fff;
+}
+
+.site-preloader p {
+  margin: 0;
+  color: rgba(195, 244, 255, 0.58);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+@keyframes preloader-dot {
+  0%, 100% { opacity: 0.28; filter: brightness(0.65); }
+  45% { opacity: 1; filter: brightness(1.45); }
+}
+
+@keyframes preloader-breathe {
+  0%, 100% { transform: scaleY(0.58) scale(1); }
+  50% { transform: scaleY(0.58) scale(1.035); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-preloader,
+  .site-preloader__halo,
+  .site-preloader__halo span {
+    animation: none;
+    transition-duration: 120ms;
+  }
+}
+
 .globe-scene {
   position: relative;
   width: min(100%, 56rem);
