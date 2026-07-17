@@ -2,14 +2,19 @@
 
 import { motion } from "framer-motion";
 import { ArrowDown, FileText, GitBranch, Mail, Network, RadioTower } from "lucide-react";
+import { lazy, Suspense } from "react";
 
 import { GlitterName } from "@/components/effects/glitter-name";
 import { usePrefersReducedMotion } from "@/components/effects/use-prefers-reduced-motion";
 import { Card } from "@/components/ui/card";
+import { BorderGlow } from "@/components/ui/border-glow";
 import { GlassButton } from "@/components/ui/glass-button";
-import { SplineScene } from "@/components/ui/splite";
 import { Spotlight } from "@/components/ui/spotlight";
 import { SpecularButton } from "@/components/ui/specular-button";
+
+const HeroRobot = lazy(() =>
+  import("@/components/effects/robot-3d").then((module) => ({ default: module.HeroRobot })),
+);
 
 export function Hero() {
   const reducedMotion = usePrefersReducedMotion();
@@ -17,11 +22,10 @@ export function Hero() {
   return (
     <section id="home" className="relative scroll-mt-28 px-3 pt-24 md:px-6 md:pt-28">
       <Card className="hero-card relative mx-auto min-h-[780px] w-full max-w-7xl overflow-hidden border-white/15 bg-[#07080c]/60 md:min-h-[720px]">
-        <div className="absolute right-0 top-14 z-[1] h-[25rem] w-full opacity-70 sm:inset-y-0 sm:top-0 sm:h-auto sm:w-[70%] sm:opacity-85 lg:w-[58%]">
-          <SplineScene
-            scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-            className="h-full w-full"
-          />
+        <div className="hero-robot-glow absolute right-0 top-12 z-[1] h-[34rem] w-full opacity-90 sm:inset-y-0 sm:top-0 sm:h-auto sm:w-[72%] lg:w-[60%]">
+          <Suspense fallback={<div className="h-full w-full" aria-hidden="true" />}>
+            <HeroRobot />
+          </Suspense>
         </div>
 
         <div className="hero-grid-overlay absolute inset-0" aria-hidden="true" />
@@ -49,9 +53,9 @@ export function Hero() {
             <motion.div initial={{ opacity: 0, y: reducedMotion ? 0 : 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reducedMotion ? 0.14 : 1.24, duration: 0.35 }} className="mt-7 flex flex-wrap gap-3">
               <SpecularButton href="#projects" icon={<ArrowDown size={16} aria-hidden="true" />}>Explore systems</SpecularButton>
               <GlassButton href="/cv" target="_blank" rel="noopener noreferrer" download="Sonal-Hegde-CV.pdf" icon={<FileText size={16} aria-hidden="true" />}>CV</GlassButton>
-              <GlassButton href="https://github.com/sonalhegde" target="_blank" rel="noreferrer" icon={<GitBranch size={16} aria-hidden="true" />} aria-label="Open Sonal Hegde’s GitHub">GitHub</GlassButton>
-              <GlassButton href="https://linkedin.com/in/sonalhegde" target="_blank" rel="noreferrer" icon={<Network size={16} aria-hidden="true" />} className="hidden sm:inline-flex" aria-label="Open Sonal Hegde’s LinkedIn">LinkedIn</GlassButton>
-              <GlassButton href="mailto:sonalhhegde@gmail.com" icon={<Mail size={16} aria-hidden="true" />} className="hidden sm:inline-flex">Email</GlassButton>
+              <BorderGlow pill><GlassButton href="https://github.com/sonalhegde" target="_blank" rel="noreferrer" icon={<GitBranch size={16} aria-hidden="true" />} aria-label="Open Sonal Hegde’s GitHub">GitHub</GlassButton></BorderGlow>
+              <BorderGlow pill className="hidden sm:inline-flex"><GlassButton href="https://linkedin.com/in/sonalhegde" target="_blank" rel="noreferrer" icon={<Network size={16} aria-hidden="true" />} aria-label="Open Sonal Hegde’s LinkedIn">LinkedIn</GlassButton></BorderGlow>
+              <BorderGlow pill className="hidden sm:inline-flex"><GlassButton href="mailto:sonalhhegde@gmail.com" icon={<Mail size={16} aria-hidden="true" />}>Email</GlassButton></BorderGlow>
             </motion.div>
           </div>
         </div>

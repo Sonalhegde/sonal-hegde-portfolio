@@ -25,6 +25,7 @@ import type { ReactNode } from "react";
 import { ResearchMap } from "@/components/effects/research-map";
 import { Hero } from "@/components/sections/hero";
 import { Card, CardContent } from "@/components/ui/card";
+import { BorderGlow } from "@/components/ui/border-glow";
 import { GlassButton } from "@/components/ui/glass-button";
 import { GlassNav } from "@/components/ui/glass-nav";
 import { InstitutionBadge } from "@/components/ui/institution-badge";
@@ -214,7 +215,7 @@ export function Portfolio() {
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {projects.map((project, index) => (
                 <motion.article key={project.title} whileHover={{ y: -5, scale: 1.005 }} transition={{ type: "spring", stiffness: 300, damping: 30 }} className={index === 0 ? "md:col-span-2 xl:col-span-2" : ""}>
-                  <Card className="project-card group h-full min-h-[330px] overflow-hidden"><CardContent className="flex h-full flex-col p-6 md:p-7"><div className="flex items-center justify-between"><span className="flex size-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] text-[#c3f4ff] transition-colors group-hover:border-[#B497CF]/40 group-hover:bg-[#B497CF]/10">{project.icon}</span><span className="font-mono text-[10px] tracking-[0.2em] text-neutral-600">{String(index + 1).padStart(2, "0")} / 07</span></div><h3 className="mt-7 text-xl font-medium leading-7 tracking-[-0.025em] text-neutral-100 md:text-2xl">{project.title}</h3><p className="mt-4 flex-1 text-sm leading-6 text-[#a3a8b8]">{project.description}</p><div className="mt-6 flex flex-wrap gap-2">{project.tech.map((item) => <TechTag key={item}>{item}</TechTag>)}</div>{project.related && <a href="#experience" className="mt-5 inline-flex items-center gap-2 text-xs font-medium text-[#B497CF] hover:text-[#c3f4ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B497CF]">Related Oman internship <ArrowUpRight size={13} /></a>}</CardContent></Card>
+                  <BorderGlow className="h-full"><Card className="project-card group h-full min-h-[330px] overflow-hidden"><CardContent className="flex h-full flex-col p-6 md:p-7"><div className="flex items-center justify-between"><span className="flex size-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] text-[#c3f4ff] transition-colors group-hover:border-[#B497CF]/40 group-hover:bg-[#B497CF]/10">{project.icon}</span><span className="font-mono text-[10px] tracking-[0.2em] text-neutral-600">{String(index + 1).padStart(2, "0")} / 07</span></div><h3 className="mt-7 text-xl font-medium leading-7 tracking-[-0.025em] text-neutral-100 md:text-2xl">{project.title}</h3><p className="mt-4 flex-1 text-sm leading-6 text-[#a3a8b8]">{project.description}</p><div className="mt-6 flex flex-wrap gap-2">{project.tech.map((item) => <TechTag key={item}>{item}</TechTag>)}</div>{project.related && <a href="#experience" className="mt-5 inline-flex items-center gap-2 text-xs font-medium text-[#B497CF] hover:text-[#c3f4ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B497CF]">Related Oman internship <ArrowUpRight size={13} /></a>}</CardContent></Card></BorderGlow>
                 </motion.article>
               ))}
             </div>
@@ -226,7 +227,7 @@ export function Portfolio() {
             <SectionHeading eyebrow="Credentials // 03" title="Certifications." copy="Credential titles are drawn from the CV. Years are shown at the requested year-only granularity; exact issue dates and verification links can be added when available." />
             <div className="grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {certifications.map((certification) => (
-                <Card key={certification.title} className={certification.featured ? "cert-card featured sm:row-span-1" : "cert-card"}>
+                <BorderGlow key={certification.title} className="h-full"><Card className={certification.featured ? "cert-card featured h-full sm:row-span-1" : "cert-card h-full"}>
                   <CardContent className="flex h-full flex-col p-6">
                     <div className="flex items-start justify-between gap-4">
                       <span className="relative flex size-12 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/90 p-2 text-[#1e6fff]">
@@ -238,7 +239,7 @@ export function Portfolio() {
                     <h3 className="mt-6 text-lg font-medium leading-6 text-neutral-100">{certification.title}</h3><p className="mt-3 text-sm text-[#B497CF]">{certification.issuer}</p><p className="mt-2 flex-1 text-[11px] text-neutral-500">Issued {certification.dateIssued}</p>
                     {certification.credentialUrl && <a href={certification.credentialUrl} target="_blank" rel="noreferrer" className="mt-5 inline-flex items-center gap-2 text-xs text-[#c3f4ff]">Verify credential <ExternalLink size={12} /></a>}
                   </CardContent>
-                </Card>
+                </Card></BorderGlow>
               ))}
             </div>
           </ScrollReveal>
@@ -252,7 +253,7 @@ export function Portfolio() {
                 { title: "B.Tech, Electronics & Communication Engineering", school: "NMAM Institute of Technology · affiliated to Nitte, Deemed to be University · Karnataka", meta: "Expected 2028" },
                 { title: "Pre-University — PCMC", school: "Jnanasudha PU College, Karkala", meta: "2022–2024 · 95%" },
                 { title: "SSLC", school: "Christ King School", meta: "2021–2022 · 97.28%" },
-              ].map((entry) => <Card key={entry.title} className="overflow-hidden"><CardContent className="grid items-center gap-5 p-6 md:grid-cols-[auto_minmax(0,1fr)_auto] md:p-8"><div className="flex size-14 items-center justify-center rounded-2xl border border-[#B497CF]/30 bg-[#B497CF]/10 text-[#c3f4ff]"><GraduationCap size={24} /></div><div><h3 className="text-lg font-medium text-neutral-100 md:text-xl">{entry.title}</h3><p className="mt-2 text-sm leading-6 text-[#a3a8b8]">{entry.school}</p></div><div className="glass-pill w-fit px-4 py-3 font-mono text-[11px] uppercase tracking-[0.1em] text-[#B497CF]">{entry.meta}</div></CardContent></Card>)}
+              ].map((entry) => <BorderGlow key={entry.title}><Card className="overflow-hidden"><CardContent className="grid items-center gap-5 p-6 md:grid-cols-[auto_minmax(0,1fr)_auto] md:p-8"><div className="flex size-14 items-center justify-center rounded-2xl border border-[#B497CF]/30 bg-[#B497CF]/10 text-[#c3f4ff]"><GraduationCap size={24} /></div><div><h3 className="text-lg font-medium text-neutral-100 md:text-xl">{entry.title}</h3><p className="mt-2 text-sm leading-6 text-[#a3a8b8]">{entry.school}</p></div><div className="glass-pill w-fit px-4 py-3 font-mono text-[11px] uppercase tracking-[0.1em] text-[#B497CF]">{entry.meta}</div></CardContent></Card></BorderGlow>)}
             </div>
           </ScrollReveal>
         </Section>
