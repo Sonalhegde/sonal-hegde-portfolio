@@ -130,21 +130,6 @@ export function GeoGlobe() {
           context.beginPath();
           context.arc(location[0], location[1], 2.7, 0, Math.PI * 2);
           context.fill();
-
-          const labelX = location[0] + (location[0] > width * 0.68 ? -132 : 24);
-          const labelY = location[1] - 22;
-          context.strokeStyle = "rgba(180,151,207,.72)";
-          context.beginPath();
-          context.moveTo(location[0], location[1]);
-          context.lineTo(labelX + (labelX < location[0] ? 116 : 0), labelY + 8);
-          context.stroke();
-          context.font = "600 12px ui-monospace, monospace";
-          context.fillStyle = "#f5f6fa";
-          context.textAlign = labelX < location[0] ? "right" : "left";
-          context.fillText("Mangalore, India", labelX, labelY);
-          context.font = "9px ui-monospace, monospace";
-          context.fillStyle = "#a3a8b8";
-          context.fillText("12.9141° N · 74.8560° E", labelX, labelY + 16);
         }
       }
     };
@@ -284,7 +269,6 @@ export function GeoGlobe() {
         role="img"
         aria-label="Interactive dotted globe locating Mangalore, India. Drag to rotate and scroll or pinch to zoom."
       />
-      <span className="geo-globe-hint" aria-hidden="true">DRAG TO ROTATE · SCROLL / PINCH TO ZOOM</span>
     </div>
   );
 }

@@ -14,7 +14,6 @@ import {
   GraduationCap,
   Layers3,
   Mail,
-  MapPin,
   Network,
   Network as Linkedin,
   RadioTower,
@@ -281,10 +280,8 @@ export function Portfolio() {
 
         <Section id="location" className="pb-12 md:pb-20">
           <ScrollReveal>
-            <div className="text-center"><p className="section-kicker justify-center">Location node // online</p><h2 className="geist-pixel-heading mt-4 text-3xl text-neutral-100 md:text-5xl">Based in Mangalore, India</h2><p className="mx-auto mt-4 max-w-2xl text-sm text-[#a3a8b8]">A real-world research map connects my home node with NITK Surathkal and Sultan Qaboos University. The interactive globe then locates Mangalore at 12.9141° N, 74.8560° E.</p></div>
             <ResearchMap />
             <GeoGlobe />
-            <div className="relative z-10 -mt-8 flex justify-center"><GlassButton staticLabel role="note" icon={<MapPin size={16} />}>Mangalore, Karnataka, India</GlassButton></div>
           </ScrollReveal>
         </Section>
       </main>
