@@ -931,9 +931,6 @@ export function AsciiArtCanvas({
         backgroundContext.fillRect(0, 0, width, height);
         backgroundContext.fillStyle = "rgba(1,3,9,.76)";
         backgroundContext.fillRect(0, 0, width, height);
-      } else {
-        backgroundContext.fillStyle = "#000";
-        backgroundContext.fillRect(0, 0, width, height);
       }
       backgroundContext.globalAlpha = 1;
 

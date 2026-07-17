@@ -2,7 +2,6 @@
 import type { Metadata, Viewport } from "next";
 
 import { AmbientCursor } from "@/components/effects/ambient-cursor";
-import { SiteAsciiBackdrop } from "@/components/effects/site-ascii-backdrop";
 
 import "./globals.css";
 
@@ -53,14 +52,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta name="referrer" content="strict-origin-when-cross-origin" />
         <meta
           httpEquiv="Content-Security-Policy"
-          content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self'; worker-src 'self' blob:; media-src 'self'; form-action 'self'; upgrade-insecure-requests"
+          content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://ipwho.is https://ipapi.co; worker-src 'self' blob:; media-src 'self'; form-action 'self'; upgrade-insecure-requests"
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Geist+Pixel&display=swap" rel="stylesheet" />
       </head>
       <body>
-        <SiteAsciiBackdrop />
         {children}
         <AmbientCursor />
       </body>

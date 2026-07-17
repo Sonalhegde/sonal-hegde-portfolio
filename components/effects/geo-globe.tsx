@@ -1,14 +1,79 @@
 "use client";
 
 import * as d3 from "d3";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { feature } from "topojson-client";
 import type { GeometryObject, Topology } from "topojson-specification";
 import worldTopology from "world-atlas/land-110m.json";
 
+import { LocationTag } from "@/components/ui/location-tag";
+
 const MANGALORE: [number, number] = [74.856, 12.9141];
 const TARGET_ROTATION: [number, number, number] = [-MANGALORE[0], -MANGALORE[1], 0];
 type LonLat = [number, number];
+
+type VisitorLocation = {
+  city: string;
+  country: string;
+  timeZone: string;
+  coordinates: LonLat;
+};
+
+type GeoApiPayload = Record<string, unknown> & {
+  timezone?: string | { id?: string };
+};
+
+function parseVisitorLocation(payload: GeoApiPayload): VisitorLocation {
+  const city = typeof payload.city === "string" ? payload.city.trim() : "";
+  const countryValue = payload.country_name ?? payload.country;
+  const country = typeof countryValue === "string" ? countryValue.trim() : "";
+  const latitude = Number(payload.latitude);
+  const longitude = Number(payload.longitude);
+  const timeZone =
+    typeof payload.timezone === "string"
+      ? payload.timezone
+      : typeof payload.timezone?.id === "string"
+        ? payload.timezone.id
+        : "";
+
+  if (
+    !city ||
+    !country ||
+    !timeZone ||
+    !Number.isFinite(latitude) ||
+    !Number.isFinite(longitude) ||
+    Math.abs(latitude) > 90 ||
+    Math.abs(longitude) > 180
+  ) {
+    throw new Error("Incomplete approximate location response");
+  }
+  new Intl.DateTimeFormat("en-US", { timeZone }).format(new Date());
+
+  return { city, country, timeZone, coordinates: [longitude, latitude] };
+}
+
+async function approximateVisitorLocation(signal: AbortSignal) {
+  try {
+    const response = await fetch("https://ipwho.is/", {
+      signal,
+      cache: "no-store",
+      referrerPolicy: "no-referrer",
+    });
+    if (!response.ok) throw new Error("Primary location service unavailable");
+    const payload = (await response.json()) as GeoApiPayload & { success?: boolean };
+    if (payload.success === false) throw new Error("Primary location lookup failed");
+    return parseVisitorLocation(payload);
+  } catch (error) {
+    if (signal.aborted) throw error;
+    const response = await fetch("https://ipapi.co/json/", {
+      signal,
+      cache: "no-store",
+      referrerPolicy: "no-referrer",
+    });
+    if (!response.ok) throw new Error("Fallback location service unavailable");
+    return parseVisitorLocation((await response.json()) as GeoApiPayload);
+  }
+}
 
 function sampleLine(line: number[][], spacing = 0.055): LonLat[] {
   const sampled: LonLat[] = [];
@@ -45,6 +110,32 @@ function visible(point: LonLat, rotation: [number, number, number]) {
 
 export function GeoGlobe() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const visitorMarkerRef = useRef<HTMLDivElement>(null);
+  const visitorRef = useRef<VisitorLocation | null>(null);
+  const redrawRef = useRef<() => void>(() => undefined);
+  const [visitor, setVisitor] = useState<VisitorLocation | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 9_000);
+    let active = true;
+
+    approximateVisitorLocation(controller.signal)
+      .then((location) => {
+        if (!active) return;
+        visitorRef.current = location;
+        setVisitor(location);
+        window.requestAnimationFrame(() => redrawRef.current());
+      })
+      .catch(() => undefined)
+      .finally(() => window.clearTimeout(timeout));
+
+    return () => {
+      active = false;
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -132,7 +223,41 @@ export function GeoGlobe() {
           context.fill();
         }
       }
+
+      const visitorLocation = visitorRef.current;
+      const visitorMarker = visitorMarkerRef.current;
+      if (visitorLocation && visible(visitorLocation.coordinates, rotation)) {
+        const location = projection(visitorLocation.coordinates);
+        if (location) {
+          const markerRadius = reducedMotion.matches ? 11 : 11 + Math.sin(pulse * 1.12) * 3;
+          const glow = context.createRadialGradient(location[0], location[1], 0, location[0], location[1], markerRadius);
+          glow.addColorStop(0, "rgba(255,255,255,.98)");
+          glow.addColorStop(0.16, "rgba(52,211,153,.95)");
+          glow.addColorStop(1, "rgba(52,211,153,0)");
+          context.fillStyle = glow;
+          context.beginPath();
+          context.arc(location[0], location[1], markerRadius, 0, Math.PI * 2);
+          context.fill();
+          context.fillStyle = "#34d399";
+          context.beginPath();
+          context.arc(location[0], location[1], 2.8, 0, Math.PI * 2);
+          context.fill();
+
+          if (visitorMarker) {
+            const placeLeft = location[0] > width * 0.62;
+            visitorMarker.style.left = `${location[0] + (placeLeft ? -18 : 18)}px`;
+            visitorMarker.style.top = `${location[1]}px`;
+            visitorMarker.style.transform = `translate(${placeLeft ? "-100%" : "0"}, -50%)`;
+            visitorMarker.style.opacity = "1";
+            visitorMarker.style.pointerEvents = "auto";
+          }
+        }
+      } else if (visitorMarker) {
+        visitorMarker.style.opacity = "0";
+        visitorMarker.style.pointerEvents = "none";
+      }
     };
+    redrawRef.current = draw;
 
     const resize = new ResizeObserver(([entry]) => {
       width = Math.max(300, Math.round(entry.contentRect.width));
@@ -258,17 +383,37 @@ export function GeoGlobe() {
       canvas.removeEventListener("pointerup", onPointerUp);
       canvas.removeEventListener("pointercancel", onPointerUp);
       reducedMotion.removeEventListener("change", onMotionChange);
+      redrawRef.current = () => undefined;
     };
   }, []);
 
   return (
-    <div className="geo-globe-shell">
-      <canvas
-        ref={canvasRef}
-        className="h-full w-full touch-none cursor-grab active:cursor-grabbing"
-        role="img"
-        aria-label="Interactive dotted globe locating Mangalore, India. Drag to rotate and scroll or pinch to zoom."
-      />
+    <div className="mx-auto w-full max-w-[60rem]">
+      <div className="geo-globe-shell">
+        <canvas
+          ref={canvasRef}
+          className="h-full w-full touch-none cursor-grab active:cursor-grabbing"
+          role="img"
+          aria-label="Interactive dotted globe showing Mangalore and, when available, the visitor's approximate IP-based location. Drag to rotate and scroll or pinch to zoom."
+        />
+        {visitor ? (
+          <div
+            ref={visitorMarkerRef}
+            className="absolute z-10 opacity-0 transition-opacity duration-300"
+          >
+            <LocationTag
+              city={visitor.city}
+              country={visitor.country}
+              timeZone={visitor.timeZone}
+            />
+          </div>
+        ) : null}
+      </div>
+      {visitor ? (
+        <p className="-mt-6 text-center text-[10px] uppercase tracking-[0.14em] text-neutral-500">
+          Showing your approximate IP-based location · no precise location permission requested
+        </p>
+      ) : null}
     </div>
   );
 }

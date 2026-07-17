@@ -2,13 +2,18 @@
 
 import { motion } from "framer-motion";
 import { ArrowDown, FileText, GitBranch, Mail, Network, RadioTower } from "lucide-react";
+import { lazy, Suspense } from "react";
 
 import { GlitterName } from "@/components/effects/glitter-name";
-import { Robot3D } from "@/components/effects/robot-3d";
 import { usePrefersReducedMotion } from "@/components/effects/use-prefers-reduced-motion";
+import { VaporHalftoneBackground } from "@/components/effects/vapor-halftone-background";
 import { Card } from "@/components/ui/card";
 import { GlassButton } from "@/components/ui/glass-button";
 import { Spotlight } from "@/components/ui/spotlight";
+
+const Robot3D = lazy(() =>
+  import("@/components/effects/robot-3d").then((module) => ({ default: module.Robot3D })),
+);
 
 export function Hero() {
   const reducedMotion = usePrefersReducedMotion();
@@ -16,8 +21,11 @@ export function Hero() {
   return (
     <section id="home" className="relative scroll-mt-28 px-3 pt-24 md:px-6 md:pt-28">
       <Card className="hero-card relative mx-auto min-h-[780px] w-full max-w-7xl overflow-hidden border-white/15 bg-[#07080c]/60 md:min-h-[720px]">
+        <VaporHalftoneBackground className="z-0" />
         <div className="absolute right-0 top-14 z-[1] h-[25rem] w-full opacity-70 sm:inset-y-0 sm:top-0 sm:h-auto sm:w-[70%] sm:opacity-85 lg:w-[58%]">
-          <Robot3D />
+          <Suspense fallback={<div className="h-full w-full bg-[radial-gradient(circle_at_65%_40%,rgba(180,151,207,.12),transparent_44%)]" aria-hidden="true" />}>
+            <Robot3D />
+          </Suspense>
         </div>
 
         <div className="hero-grid-overlay absolute inset-0" aria-hidden="true" />
