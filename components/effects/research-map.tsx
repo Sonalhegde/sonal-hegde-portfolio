@@ -56,8 +56,8 @@ async function fetchVisitorLocation(signal: AbortSignal) {
 export function ResearchMap() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const visitorRef = useRef<VisitorLocation | null>(null);
+  const clockRef = useRef<HTMLSpanElement>(null);
   const [visitor, setVisitor] = useState<VisitorLocation | null>(null);
-  const [localTime, setLocalTime] = useState("");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -71,13 +71,16 @@ export function ResearchMap() {
 
   useEffect(() => {
     if (!visitor) return;
-    const update = () => setLocalTime(new Intl.DateTimeFormat("en-GB", {
+    const update = () => {
+      if (!clockRef.current || document.hidden) return;
+      clockRef.current.textContent = new Intl.DateTimeFormat("en-GB", {
       timeZone: visitor.timezone,
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
       hour12: false,
-    }).format(new Date()));
+      }).format(new Date());
+    };
     update();
     const timer = window.setInterval(update, 1000);
     return () => window.clearInterval(timer);
@@ -137,7 +140,10 @@ export function ResearchMap() {
       if (current) marker([current.longitude, current.latitude], "Visitor signal", "rgba(52,211,153,1)", now + 800, "right");
     };
 
+    let resizeTimer = 0;
     const resize = new ResizeObserver(([entry]) => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
       width = Math.max(300, Math.round(entry.contentRect.width));
       height = Math.max(300, Math.round(entry.contentRect.height));
       const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
@@ -145,13 +151,14 @@ export function ResearchMap() {
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       projection.fitExtent([[18, 18], [width - 18, height - 18]], { type: "Sphere" });
       draw();
+      }, 120);
     });
     resize.observe(canvas);
     const intersection = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { rootMargin: "100px" });
     intersection.observe(canvas);
     const animate = (now: number) => { frame = requestAnimationFrame(animate); if (visible && !document.hidden) draw(now); };
     if (!reducedMotion.matches) frame = requestAnimationFrame(animate);
-    return () => { cancelAnimationFrame(frame); resize.disconnect(); intersection.disconnect(); };
+    return () => { cancelAnimationFrame(frame); window.clearTimeout(resizeTimer); resize.disconnect(); intersection.disconnect(); };
   }, []);
 
   return (
@@ -159,7 +166,7 @@ export function ResearchMap() {
       <canvas ref={canvasRef} className="h-full w-full" role="img" aria-label="World map showing Sonal's portfolio base in Karkala and the current visitor's approximate IP-based location" />
       <div className="pointer-events-none absolute inset-x-4 bottom-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/55 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.1em] text-neutral-400 backdrop-blur-md">
         <span><span className="mr-2 inline-block size-2 rounded-full bg-[#c3f4ff] shadow-[0_0_10px_#c3f4ff]" />Karkala, India</span>
-        {visitor ? <span><span className="mr-2 inline-block size-2 animate-pulse rounded-full bg-emerald-400" />{visitor.city}, {visitor.country} · {localTime} {visitor.timezone}</span> : <span>Visitor signal unavailable</span>}
+        {visitor ? <span><span className="mr-2 inline-block size-2 animate-pulse rounded-full bg-emerald-400" />{visitor.city}, {visitor.country} · <span ref={clockRef}>--:--:--</span> {visitor.timezone}</span> : <span>Visitor signal unavailable</span>}
       </div>
       <figcaption className="sr-only">Approximate visitor location is derived from IP data without requesting precise device location or storing personal information.</figcaption>
     </figure>

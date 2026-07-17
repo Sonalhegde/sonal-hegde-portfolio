@@ -868,7 +868,10 @@ export function AsciiArtCanvas({
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
 
+    let resizeTimer = 0;
     const resize = new ResizeObserver(([entry]) => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
       width = Math.max(1, Math.round(entry.contentRect.width));
       height = Math.max(1, Math.round(entry.contentRect.height));
       const dpr = Math.min(window.devicePixelRatio || 1, isTouch ? 1.15 : 1.6);
@@ -876,6 +879,7 @@ export function AsciiArtCanvas({
       canvas.height = Math.round(height * dpr);
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       if (image.complete) render(performance.now());
+      }, 120);
     });
     resize.observe(canvas);
 
@@ -1065,6 +1069,7 @@ export function AsciiArtCanvas({
       cancelAnimationFrame(frame);
       intersection.disconnect();
       resize.disconnect();
+      window.clearTimeout(resizeTimer);
       media.removeEventListener("change", onMotionChange);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       canvas.parentElement?.removeEventListener("pointermove", onPointerMove);

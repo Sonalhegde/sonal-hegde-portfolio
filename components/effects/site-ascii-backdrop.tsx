@@ -12,6 +12,7 @@ function adaptiveCellSize(width: number) {
 
 export function SiteAsciiBackdrop() {
   const [cellSize, setCellSize] = useState(14);
+  const [conserveResources, setConserveResources] = useState(false);
 
   useEffect(() => {
     let timer = 0;
@@ -20,11 +21,18 @@ export function SiteAsciiBackdrop() {
       timer = window.setTimeout(() => setCellSize(adaptiveCellSize(window.innerWidth)), 120);
     };
     update();
+    const device = navigator as Navigator & { deviceMemory?: number };
+    const policyTimer = window.setTimeout(() => setConserveResources(
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+        (navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 4) ||
+        (device.deviceMemory !== undefined && device.deviceMemory <= 4),
+      ), 0);
     const observer = new ResizeObserver(update);
     observer.observe(document.documentElement);
     window.addEventListener("resize", update, { passive: true });
     return () => {
       window.clearTimeout(timer);
+      window.clearTimeout(policyTimer);
       observer.disconnect();
       window.removeEventListener("resize", update);
     };
@@ -44,6 +52,7 @@ export function SiteAsciiBackdrop() {
       tintOpacity: 22,
       overlayBlend: "soft-light" as GlobalCompositeOperation,
       animStyle: "shimmer" as const,
+      animated: !conserveResources,
       pfx: {
         ...HERO_ASCII_PRESET.pfx,
         vignette: { enabled: true, intensity: 38 },
@@ -51,7 +60,7 @@ export function SiteAsciiBackdrop() {
         halftone: { enabled: true, intensity: 40 },
       },
     }),
-    [cellSize],
+    [cellSize, conserveResources],
   );
 
   return (
@@ -59,7 +68,7 @@ export function SiteAsciiBackdrop() {
       <AsciiArtCanvas
         config={config}
         sourceImage="/ascii-editor/demos/generated/ref-068.webp"
-        frameRate={24}
+        frameRate={conserveResources ? 1 : 24}
         pauseWhenOffscreen={false}
         className="h-[100dvh] w-[100dvw]"
       />

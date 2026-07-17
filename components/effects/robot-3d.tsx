@@ -4,14 +4,15 @@ import { RoundedBox } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Bloom, EffectComposer } from "@react-three/postprocessing";
 import * as THREE from "three";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import { useElementInView } from "@/components/effects/use-element-in-view";
 import { usePrefersReducedMotion } from "@/components/effects/use-prefers-reduced-motion";
 
 const HEAD_YAW = THREE.MathUtils.degToRad(20);
 const HEAD_PITCH = THREE.MathUtils.degToRad(10);
 
-function RobotScene({ reducedMotion }: { reducedMotion: boolean }) {
+function RobotScene({ reducedMotion, lowEnd }: { reducedMotion: boolean; lowEnd: boolean }) {
   const rootRef = useRef<THREE.Group>(null);
   const headRef = useRef<THREE.Group>(null);
   const leftPupilRef = useRef<THREE.Mesh>(null);
@@ -186,25 +187,38 @@ function RobotScene({ reducedMotion }: { reducedMotion: boolean }) {
       <pointLight color="#1e6fff" intensity={26} distance={14} decay={2} position={[3.2, 1.2, 1.8]} />
       <pointLight color="#B497CF" intensity={18} distance={9} decay={2} position={[-2.8, -1.2, 2.2]} />
 
-      <EffectComposer multisampling={0}>
+      {!lowEnd && <EffectComposer multisampling={0}>
         <Bloom mipmapBlur intensity={0.85} luminanceThreshold={0.78} luminanceSmoothing={0.24} />
-      </EffectComposer>
+      </EffectComposer>}
     </>
   );
 }
 
 export function Robot3D() {
   const reducedMotion = usePrefersReducedMotion();
+  const [containerRef, inView] = useElementInView<HTMLDivElement>();
+  const [lowEnd, setLowEnd] = useState(false);
+
+  useEffect(() => {
+    const device = navigator as Navigator & { deviceMemory?: number };
+    const timer = window.setTimeout(() => setLowEnd(
+        (navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 4) ||
+        (device.deviceMemory !== undefined && device.deviceMemory <= 4),
+      ), 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   return (
     <div
+      ref={containerRef}
       className="robot-3d-canvas"
       role="img"
       aria-label="A three-dimensional robot whose eyes and head gently follow the pointer"
     >
       <Canvas
         camera={{ position: [0, 0.2, 7.1], fov: 34, near: 0.1, far: 100 }}
-        dpr={[1, 1.6]}
+        dpr={[1, lowEnd ? 1.2 : 1.6]}
+        frameloop={inView ? "always" : "never"}
         gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
         onCreated={({ gl }) => {
           gl.setClearColor(0x000000, 0);
@@ -214,7 +228,7 @@ export function Robot3D() {
         }}
         performance={{ min: 0.55 }}
       >
-        <RobotScene reducedMotion={reducedMotion} />
+        <RobotScene reducedMotion={reducedMotion} lowEnd={lowEnd} />
       </Canvas>
     </div>
   );

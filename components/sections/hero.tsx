@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { GlassButton } from "@/components/ui/glass-button";
 import { SplineScene } from "@/components/ui/splite";
 import { Spotlight } from "@/components/ui/spotlight";
+import { SpecularButton } from "@/components/ui/specular-button";
 
 export function Hero() {
   const reducedMotion = usePrefersReducedMotion();
@@ -46,7 +47,7 @@ export function Hero() {
             </motion.p>
 
             <motion.div initial={{ opacity: 0, y: reducedMotion ? 0 : 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reducedMotion ? 0.14 : 1.24, duration: 0.35 }} className="mt-7 flex flex-wrap gap-3">
-              <GlassButton href="#projects" icon={<ArrowDown size={16} aria-hidden="true" />}>Explore systems</GlassButton>
+              <SpecularButton href="#projects" icon={<ArrowDown size={16} aria-hidden="true" />}>Explore systems</SpecularButton>
               <GlassButton href="/cv" target="_blank" rel="noopener noreferrer" download="Sonal-Hegde-CV.pdf" icon={<FileText size={16} aria-hidden="true" />}>CV</GlassButton>
               <GlassButton href="https://github.com/sonalhegde" target="_blank" rel="noreferrer" icon={<GitBranch size={16} aria-hidden="true" />} aria-label="Open Sonal Hegde’s GitHub">GitHub</GlassButton>
               <GlassButton href="https://linkedin.com/in/sonalhegde" target="_blank" rel="noreferrer" icon={<Network size={16} aria-hidden="true" />} className="hidden sm:inline-flex" aria-label="Open Sonal Hegde’s LinkedIn">LinkedIn</GlassButton>
