@@ -24,7 +24,7 @@ test("server-renders Sonal Hegde's portfolio", async () => {
   assert.match(html, /Applied Cyber-Physical Systems/);
   assert.match(html, /Digital Twin-Based Smart Transportation/);
   assert.match(html, /Mangalore, India/);
-  assert.match(html, /Loading 3D scene/);
+  assert.match(html, /class="loader"/);
   assert.match(html, /connect-src[^\"]*https:\/\/prod\.spline\.design/);
   assert.match(html, /Karkala, India/);
   assert.match(html, /connect-src[^\"]*https:\/\/ipwho\.is[^\"]*https:\/\/ipapi\.co/);
