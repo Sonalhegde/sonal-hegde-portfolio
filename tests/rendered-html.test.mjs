@@ -24,13 +24,15 @@ test("server-renders Sonal Hegde's portfolio", async () => {
   assert.match(html, /Applied Cyber-Physical Systems/);
   assert.match(html, /Digital Twin-Based Smart Transportation/);
   assert.match(html, /Mangalore, India/);
-  assert.match(html, /three-dimensional robot whose eyes and head gently follow the pointer/);
+  assert.match(html, /Loading 3D scene/);
+  assert.match(html, /connect-src[^\"]*https:\/\/prod\.spline\.design/);
+  assert.match(html, /Karkala, India/);
   assert.match(html, /connect-src[^\"]*https:\/\/ipwho\.is[^\"]*https:\/\/ipapi\.co/);
   assert.match(html, />CV</);
   assert.match(html, /href="\/cv"/);
   assert.match(html, /href="[^"]*\/favicon\.ico"/);
   assert.ok(html.indexOf('id="certifications"') < html.indexOf('id="education"'));
   assert.doesNotMatch(html, /Hero visual mode|>ASCII</);
-  assert.doesNotMatch(html, /Three\.js robot|Three\.js \/ WebGL|DRAG TO ROTATE/);
+  assert.doesNotMatch(html, /Three\.js robot|Three\.js \/ WebGL|DRAG TO ROTATE|geo-globe-shell/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape/);
 });

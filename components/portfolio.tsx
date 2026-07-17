@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { GeoGlobe } from "@/components/effects/geo-globe";
 import { ResearchMap } from "@/components/effects/research-map";
 import { Hero } from "@/components/sections/hero";
 import { Card, CardContent } from "@/components/ui/card";
@@ -184,7 +183,7 @@ export function Portfolio() {
                 <div className="lab-readout rounded-2xl border border-white/10 bg-black/35 p-5 font-mono text-[11px] uppercase tracking-[0.14em] text-neutral-500">
                   <div className="flex items-center justify-between border-b border-white/10 pb-3"><span>Currently exploring</span><span className="text-[#c3f4ff]">Active</span></div>
                   <div className="mt-5 flex items-center gap-3 rounded-xl border border-[#1e6fff]/30 bg-[#1e6fff]/10 p-4 text-neutral-200"><Network size={17} className="text-[#c3f4ff]" /><span>Computer Networks</span></div>
-                  <dl className="mt-5 grid gap-3"><div className="flex justify-between gap-4"><dt>Physical layer</dt><dd className="text-neutral-300">Sensors + PCB</dd></div><div className="flex justify-between gap-4"><dt>Edge layer</dt><dd className="text-neutral-300">Firmware + AI</dd></div><div className="flex justify-between gap-4"><dt>Network layer</dt><dd className="text-neutral-300">CoAP + MQTT</dd></div><div className="flex justify-between gap-4"><dt>Twin layer</dt><dd className="text-neutral-300">Realtime models</dd></div></dl>
+                  <dl className="mt-5 grid gap-3"><div className="flex justify-between gap-4"><dt>Programming</dt><dd className="text-right text-neutral-300">Python · C++ · C · Java · JavaScript</dd></div><div className="flex justify-between gap-4"><dt>Problem solving</dt><dd className="text-neutral-300">DSA · OOP</dd></div><div className="flex justify-between gap-4"><dt>Embedded</dt><dd className="text-right text-neutral-300">ESP32 · STM32 · FreeRTOS</dd></div><div className="flex justify-between gap-4"><dt>Networks</dt><dd className="text-right text-neutral-300">MQTT · CoAP · REST · BLE</dd></div><div className="flex justify-between gap-4"><dt>AI / Vision</dt><dd className="text-right text-neutral-300">PyTorch · YOLOv8 · OpenCV</dd></div><div className="flex justify-between gap-4"><dt>Dev tools</dt><dd className="text-right text-neutral-300">Docker · Git · Linux · Three.js</dd></div></dl>
                 </div>
               </CardContent>
             </Card>
@@ -281,7 +280,6 @@ export function Portfolio() {
         <Section id="location" className="pb-12 md:pb-20">
           <ScrollReveal>
             <ResearchMap />
-            <GeoGlobe />
           </ScrollReveal>
         </Section>
       </main>

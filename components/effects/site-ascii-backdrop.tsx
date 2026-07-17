@@ -33,13 +33,22 @@ export function SiteAsciiBackdrop() {
   const config = useMemo(
     () => ({
       ...HERO_ASCII_PRESET,
+      renderMode: "dither" as const,
       cellSize,
-      bgOpacity: 100,
-      tint: "#1e6fff",
-      tintOpacity: 42,
+      bgMode: "blurred" as const,
+      bgBlur: 12,
+      bgOpacity: 90,
+      invert: false,
+      edgeEmphasis: 0,
+      tint: "#7c9cff",
+      tintOpacity: 22,
+      overlayBlend: "soft-light" as GlobalCompositeOperation,
+      animStyle: "shimmer" as const,
       pfx: {
         ...HERO_ASCII_PRESET.pfx,
-        vignette: { enabled: true, intensity: 52 },
+        vignette: { enabled: true, intensity: 38 },
+        bloom: { enabled: true, intensity: 60 },
+        halftone: { enabled: true, intensity: 40 },
       },
     }),
     [cellSize],
@@ -49,7 +58,7 @@ export function SiteAsciiBackdrop() {
     <div className="site-ascii-backdrop" aria-hidden="true">
       <AsciiArtCanvas
         config={config}
-        sourceImage="/tower-source.png"
+        sourceImage="/ascii-editor/demos/generated/ref-068.webp"
         frameRate={24}
         pauseWhenOffscreen={false}
         className="h-[100dvh] w-[100dvw]"

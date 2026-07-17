@@ -1,36 +1,92 @@
 "use client";
 
 import * as d3 from "d3";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { feature } from "topojson-client";
 import type { GeometryObject, Topology } from "topojson-specification";
 import worldTopology from "world-atlas/land-110m.json";
 
-type Place = {
-  name: string;
-  detail: string;
-  coordinates: [number, number];
-  align: CanvasTextAlign;
+type VisitorLocation = {
+  city: string;
+  country: string;
+  latitude: number;
+  longitude: number;
+  timezone: string;
 };
 
-const PLACES: Place[] = [
-  { name: "Mangalore", detail: "Home node", coordinates: [74.856, 12.9141], align: "right" },
-  { name: "NITK Surathkal", detail: "Cyber-physical systems", coordinates: [74.7937, 13.0108], align: "left" },
-  { name: "Sultan Qaboos University", detail: "Marine debris · edge AI", coordinates: [58.1691, 23.6004], align: "right" },
-];
+type GeoPayload = {
+  success?: boolean;
+  city?: string;
+  country?: string;
+  latitude?: number;
+  longitude?: number;
+  timezone?: string | { id?: string };
+};
 
+const KARKALA: [number, number] = [74.992, 13.2143];
 const topology = worldTopology as unknown as Topology;
 const land = feature(topology, topology.objects.land as GeometryObject);
 
+function parseLocation(payload: GeoPayload): VisitorLocation | null {
+  const timezone = typeof payload.timezone === "string" ? payload.timezone : payload.timezone?.id;
+  if (!payload.city || !payload.country || !timezone || !Number.isFinite(payload.latitude) || !Number.isFinite(payload.longitude)) return null;
+  return {
+    city: payload.city,
+    country: payload.country,
+    latitude: payload.latitude as number,
+    longitude: payload.longitude as number,
+    timezone,
+  };
+}
+
+async function fetchVisitorLocation(signal: AbortSignal) {
+  for (const url of ["https://ipwho.is/", "https://ipapi.co/json/"]) {
+    try {
+      const response = await fetch(url, { signal, cache: "no-store" });
+      if (!response.ok) continue;
+      const location = parseLocation((await response.json()) as GeoPayload);
+      if (location) return location;
+    } catch (error) {
+      if (signal.aborted) throw error;
+    }
+  }
+  return null;
+}
+
 export function ResearchMap() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const visitorRef = useRef<VisitorLocation | null>(null);
+  const [visitor, setVisitor] = useState<VisitorLocation | null>(null);
+  const [localTime, setLocalTime] = useState("");
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchVisitorLocation(controller.signal).then((location) => {
+      if (!location) return;
+      visitorRef.current = location;
+      setVisitor(location);
+    }).catch(() => undefined);
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    if (!visitor) return;
+    const update = () => setLocalTime(new Intl.DateTimeFormat("en-GB", {
+      timeZone: visitor.timezone,
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    }).format(new Date()));
+    update();
+    const timer = window.setInterval(update, 1000);
+    return () => window.clearInterval(timer);
+  }, [visitor]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const context = canvas.getContext("2d");
-    if (!context) return;
-
+    const context = canvas?.getContext("2d");
+    if (!canvas || !context) return;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     const projection = d3.geoNaturalEarth1();
     const path = d3.geoPath(projection, context);
@@ -38,137 +94,74 @@ export function ResearchMap() {
     let width = 900;
     let height = 430;
     let frame = 0;
-    let running = true;
     let visible = true;
 
-    const drawRoute = (from: [number, number], to: [number, number], phase: number) => {
-      const interpolate = d3.geoInterpolate(from, to);
+    const marker = (coordinates: [number, number], label: string, color: string, now: number, align: CanvasTextAlign) => {
+      const point = projection(coordinates);
+      if (!point) return;
+      const pulse = reducedMotion.matches ? 0.35 : (Math.sin(now * 0.004) + 1) / 2;
+      const glow = context.createRadialGradient(point[0], point[1], 0, point[0], point[1], 8 + pulse * 8);
+      glow.addColorStop(0, color);
+      glow.addColorStop(1, "rgba(0,0,0,0)");
+      context.fillStyle = glow;
       context.beginPath();
-      for (let step = 0; step <= 80; step += 1) {
-        const point = projection(interpolate(step / 80));
-        if (!point) continue;
-        if (step === 0) context.moveTo(point[0], point[1]);
-        else context.lineTo(point[0], point[1]);
-      }
-      context.setLineDash([4, 6]);
-      context.lineDashOffset = -phase;
-      context.strokeStyle = "rgba(180,151,207,.7)";
-      context.lineWidth = 1.2;
-      context.stroke();
-      context.setLineDash([]);
+      context.arc(point[0], point[1], 16, 0, Math.PI * 2);
+      context.fill();
+      context.fillStyle = color;
+      context.beginPath();
+      context.arc(point[0], point[1], 3, 0, Math.PI * 2);
+      context.fill();
+      context.textAlign = align;
+      context.font = "600 10px ui-monospace, SFMono-Regular, Consolas, monospace";
+      context.fillStyle = "rgba(245,246,250,.96)";
+      context.fillText(label, point[0] + (align === "right" ? -12 : 12), point[1] - 8);
     };
 
     const draw = (now = 0) => {
       context.clearRect(0, 0, width, height);
-      const backdrop = context.createLinearGradient(0, 0, width, height);
-      backdrop.addColorStop(0, "rgba(30,111,255,.08)");
-      backdrop.addColorStop(0.55, "rgba(7,8,12,.12)");
-      backdrop.addColorStop(1, "rgba(180,151,207,.08)");
-      context.fillStyle = backdrop;
+      const background = context.createLinearGradient(0, 0, width, height);
+      background.addColorStop(0, "rgba(30,111,255,.1)");
+      background.addColorStop(1, "rgba(180,151,207,.08)");
+      context.fillStyle = background;
       context.fillRect(0, 0, width, height);
-
-      context.beginPath();
-      path({ type: "Sphere" });
-      context.fillStyle = "rgba(4,7,12,.62)";
-      context.fill();
-      context.strokeStyle = "rgba(195,244,255,.2)";
-      context.lineWidth = 1;
-      context.stroke();
-
-      context.beginPath();
-      path(graticule);
-      context.strokeStyle = "rgba(30,111,255,.14)";
-      context.lineWidth = 0.65;
-      context.stroke();
-
-      context.beginPath();
-      path(land);
-      context.fillStyle = "rgba(195,244,255,.1)";
-      context.fill();
-      context.strokeStyle = "rgba(195,244,255,.42)";
-      context.lineWidth = 0.65;
-      context.stroke();
-
-      const phase = reducedMotion.matches ? 0 : now * 0.018;
-      drawRoute(PLACES[0].coordinates, PLACES[1].coordinates, phase);
-      drawRoute(PLACES[0].coordinates, PLACES[2].coordinates, phase);
-
-      PLACES.forEach((place, index) => {
-        const point = projection(place.coordinates);
-        if (!point) return;
-        const pulse = reducedMotion.matches ? 0 : (Math.sin(now * 0.003 + index * 1.8) + 1) / 2;
-        const glow = context.createRadialGradient(point[0], point[1], 0, point[0], point[1], 7 + pulse * 5);
-        glow.addColorStop(0, index === 0 ? "rgba(255,255,255,1)" : "rgba(195,244,255,.95)");
-        glow.addColorStop(0.24, index === 2 ? "rgba(180,151,207,.82)" : "rgba(30,111,255,.72)");
-        glow.addColorStop(1, "rgba(30,111,255,0)");
-        context.fillStyle = glow;
-        context.beginPath();
-        context.arc(point[0], point[1], 12, 0, Math.PI * 2);
-        context.fill();
-        context.fillStyle = "#f5f6fa";
-        context.beginPath();
-        context.arc(point[0], point[1], index === 0 ? 2.8 : 2.2, 0, Math.PI * 2);
-        context.fill();
-
-        const offsetX = place.align === "right" ? -13 : 13;
-        const offsetY = index === 1 ? 25 : -9;
-        context.textAlign = place.align;
-        context.font = "600 10px ui-monospace, SFMono-Regular, Consolas, monospace";
-        context.fillStyle = "rgba(245,246,250,.95)";
-        context.fillText(place.name, point[0] + offsetX, point[1] + offsetY);
-        context.font = "8px ui-monospace, SFMono-Regular, Consolas, monospace";
-        context.fillStyle = "rgba(163,168,184,.9)";
-        context.fillText(place.detail, point[0] + offsetX, point[1] + offsetY + 13);
-      });
+      context.beginPath(); path({ type: "Sphere" });
+      context.fillStyle = "rgba(4,7,12,.66)"; context.fill();
+      context.strokeStyle = "rgba(195,244,255,.2)"; context.stroke();
+      context.beginPath(); path(graticule);
+      context.strokeStyle = "rgba(30,111,255,.14)"; context.lineWidth = 0.65; context.stroke();
+      context.beginPath(); path(land);
+      context.fillStyle = "rgba(195,244,255,.1)"; context.fill();
+      context.strokeStyle = "rgba(195,244,255,.42)"; context.stroke();
+      marker(KARKALA, "Karkala · portfolio base", "rgba(195,244,255,1)", now, "left");
+      const current = visitorRef.current;
+      if (current) marker([current.longitude, current.latitude], "Visitor signal", "rgba(52,211,153,1)", now + 800, "right");
     };
 
     const resize = new ResizeObserver(([entry]) => {
       width = Math.max(300, Math.round(entry.contentRect.width));
       height = Math.max(300, Math.round(entry.contentRect.height));
       const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
-      canvas.width = Math.round(width * dpr);
-      canvas.height = Math.round(height * dpr);
+      canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       projection.fitExtent([[18, 18], [width - 18, height - 18]], { type: "Sphere" });
       draw();
     });
     resize.observe(canvas);
-
-    const intersection = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting;
-    }, { rootMargin: "100px" });
+    const intersection = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { rootMargin: "100px" });
     intersection.observe(canvas);
-
-    const animate = (now: number) => {
-      frame = requestAnimationFrame(animate);
-      if (running && visible) draw(now);
-    };
+    const animate = (now: number) => { frame = requestAnimationFrame(animate); if (visible && !document.hidden) draw(now); };
     if (!reducedMotion.matches) frame = requestAnimationFrame(animate);
-
-    const onVisibility = () => {
-      running = !document.hidden;
-    };
-    document.addEventListener("visibilitychange", onVisibility);
-
-    return () => {
-      cancelAnimationFrame(frame);
-      resize.disconnect();
-      intersection.disconnect();
-      document.removeEventListener("visibilitychange", onVisibility);
-    };
+    return () => { cancelAnimationFrame(frame); resize.disconnect(); intersection.disconnect(); };
   }, []);
 
   return (
-    <figure className="research-map-shell">
-      <canvas
-        ref={canvasRef}
-        className="h-full w-full"
-        role="img"
-        aria-label="World map linking Sonal's home base in Mangalore with NITK Surathkal and Sultan Qaboos University in Oman"
-      />
-      <figcaption className="sr-only">
-        Research map showing Mangalore, NITK Surathkal, and Sultan Qaboos University in Muscat, Oman.
-      </figcaption>
+    <figure className="research-map-shell relative overflow-hidden">
+      <canvas ref={canvasRef} className="h-full w-full" role="img" aria-label="World map showing Sonal's portfolio base in Karkala and the current visitor's approximate IP-based location" />
+      <div className="pointer-events-none absolute inset-x-4 bottom-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/55 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.1em] text-neutral-400 backdrop-blur-md">
+        <span><span className="mr-2 inline-block size-2 rounded-full bg-[#c3f4ff] shadow-[0_0_10px_#c3f4ff]" />Karkala, India</span>
+        {visitor ? <span><span className="mr-2 inline-block size-2 animate-pulse rounded-full bg-emerald-400" />{visitor.city}, {visitor.country} · {localTime} {visitor.timezone}</span> : <span>Visitor signal unavailable</span>}
+      </div>
+      <figcaption className="sr-only">Approximate visitor location is derived from IP data without requesting precise device location or storing personal information.</figcaption>
     </figure>
   );
 }
