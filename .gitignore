@@ -44,3 +44,7 @@ next-env.d.ts
 /outputs/
 /work/
 /tmp/
+
+# Local Codex/OpenAI workspace metadata
+/.codex/
+/.openai/
