@@ -44,7 +44,6 @@ const experiences = [
     organization: (
       <><span>Center for System Design · </span><InstitutionBadge icon="🇮🇳">National Institute of Technology Karnataka, Surathkal</InstitutionBadge></>
     ),
-    meta: "On-site · June 2026 – Aug 2026",
     icon: <RadioTower size={18} aria-hidden="true" />,
     bullets: [
       "Contributed to a digital-twin-based smart transportation research initiative spanning embedded firmware, real-time sensor networks, and cyber-physical systems integration.",
@@ -57,13 +56,12 @@ const experiences = [
     index: "02",
     title: "Research Intern — Marine Debris Detection with YOLOv8",
     organization: <InstitutionBadge icon="🇴🇲">Sultan Qaboos University, Muscat, Oman</InstitutionBadge>,
-    meta: "Internship project · Date not listed in CV",
     icon: <Waves size={18} aria-hidden="true" />,
     bullets: [
       "Built and trained a YOLOv8 computer-vision pipeline to detect and localize marine debris in drone imagery.",
       "Curated and annotated a custom floating-debris dataset, using augmentation and transfer learning to exceed 90% detection accuracy.",
-      "Optimized inference for NVIDIA Jetson Nano deployment and integrated detections with a live web dashboard.",
-      "Stack: YOLOv8, PyTorch, OpenCV, NVIDIA Jetson Nano, Python.",
+      "Integrated detections with a live web dashboard for real-time monitoring.",
+      "Stack: YOLOv8, PyTorch, OpenCV, Python.",
     ],
   },
 ];
@@ -83,9 +81,9 @@ const projects = [
   },
   {
     title: "Marine Debris Detection using YOLOv8",
-    tech: ["Python", "OpenCV", "YOLOv8", "NVIDIA Jetson Nano"],
+    tech: ["Python", "OpenCV", "YOLOv8", "PyTorch"],
     icon: <Waves size={19} aria-hidden="true" />,
-    description: "YOLOv8 real-time marine-debris detection for drone imagery, built from a custom annotated dataset, optimized for Jetson Nano inference, and connected to a live web dashboard.",
+    description: "YOLOv8 real-time marine-debris detection for drone imagery, built from a custom annotated dataset and connected to a live web dashboard.",
     related: true,
   },
   {
@@ -199,7 +197,7 @@ export function Portfolio() {
                 <Card key={experience.index} className="group relative ml-3 overflow-hidden transition-colors hover:border-[#B497CF]/35 md:ml-5">
                   <CardContent className="grid gap-6 p-6 md:grid-cols-[72px_minmax(0,1fr)] md:p-8">
                     <div className="relative z-10 flex size-12 items-center justify-center rounded-2xl border border-[#B497CF]/30 bg-[#B497CF]/10 text-[#c3f4ff] md:size-16">{experience.icon}<span className="absolute -right-3 -top-3 font-mono text-[9px] text-neutral-600">{experience.index}</span></div>
-                    <div><div className="flex flex-wrap items-start justify-between gap-3"><div><h3 className="text-xl font-medium tracking-[-0.02em] text-neutral-100 md:text-2xl">{experience.title}</h3><div className="mt-2 max-w-3xl text-sm leading-6 text-[#B497CF]">{experience.organization}</div></div><span className="glass-pill px-3 py-2 font-mono text-[10px] uppercase tracking-[0.1em] text-neutral-300">{experience.meta}</span></div>
+                    <div><div><h3 className="text-xl font-medium tracking-[-0.02em] text-neutral-100 md:text-2xl">{experience.title}</h3><div className="mt-2 max-w-3xl text-sm leading-6 text-[#B497CF]">{experience.organization}</div></div>
                       <ul className="mt-6 grid gap-3 text-sm leading-6 text-[#a3a8b8] md:text-[15px]">{experience.bullets.map((bullet) => <li key={bullet} className="flex gap-3"><span className="mt-[10px] size-1 shrink-0 rounded-full bg-[#c3f4ff] shadow-[0_0_8px_#c3f4ff]" /><span>{bullet}</span></li>)}</ul>
                     </div>
                   </CardContent>
