@@ -184,6 +184,18 @@ body::before {
 }
 .hero-robot-glow > * { position: relative; z-index: 1; }
 
+.spline-stage {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: pan-y pinch-zoom;
+  contain: layout paint;
+}
+
+.spline-stage:active { cursor: grabbing; }
+.spline-stage canvas { display: block; max-width: 100%; max-height: 100%; }
+
 .ambient-grid {
   position: fixed;
   inset: 0;
@@ -496,8 +508,8 @@ body::before {
 
 .assistant-trigger {
   position: fixed;
-  right: 1rem;
-  bottom: 1rem;
+  right: max(0.75rem, env(safe-area-inset-right));
+  bottom: max(0.75rem, env(safe-area-inset-bottom));
   z-index: 70;
   display: flex;
   min-width: 2.75rem;
@@ -513,12 +525,12 @@ body::before {
 
 .assistant-panel {
   position: fixed;
-  right: 1rem;
-  bottom: 4.75rem;
+  right: max(0.75rem, env(safe-area-inset-right));
+  bottom: max(4.5rem, calc(env(safe-area-inset-bottom) + 4rem));
   z-index: 70;
   display: flex;
-  width: min(24rem, calc(100vw - 2rem));
-  max-height: min(38rem, calc(100dvh - 7rem));
+  width: min(24rem, calc(100dvw - 1.5rem - env(safe-area-inset-right)));
+  max-height: min(38rem, calc(100dvh - 6.5rem - env(safe-area-inset-bottom)));
   flex-direction: column;
   overflow: hidden;
   border-radius: 1.5rem;
@@ -905,6 +917,23 @@ body::before {
 }
 
 @media (max-width: 640px) {
+  .hero-card { min-height: 48rem; }
+  .hero-robot-glow {
+    top: 0.25rem;
+    right: -12%;
+    width: 124%;
+    height: 27rem;
+    opacity: 0.62;
+  }
+  .hero-text-scrim {
+    background: linear-gradient(180deg, rgba(0,0,0,.3) 0%, rgba(0,0,0,.32) 33%, rgba(3,6,11,.8) 51%, rgba(3,6,11,.96) 68%, rgba(3,6,11,.98) 100%);
+  }
+  .hero-copy-layer {
+    min-height: 48rem;
+    align-items: flex-start;
+    padding-top: 22.75rem;
+    padding-bottom: 1rem;
+  }
   .robot-3d-canvas {
     min-height: 0;
     opacity: 0.58;
@@ -912,6 +941,8 @@ body::before {
     transform-origin: center top;
   }
   .hero-copy-panel {
+    width: 100%;
+    max-width: 100%;
     margin-inline: -0.25rem;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 1.35rem;
@@ -919,6 +950,12 @@ body::before {
     background: rgba(3, 6, 11, 0.7);
     -webkit-backdrop-filter: blur(14px) saturate(130%);
     backdrop-filter: blur(14px) saturate(130%);
+  }
+  .hero-copy-panel h1 {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    font-size: clamp(2.1rem, 13vw, 3rem);
+    letter-spacing: -0.075em;
   }
   .mobile-view-notice {
     top: auto;

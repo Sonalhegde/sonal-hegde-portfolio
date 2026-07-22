@@ -13,12 +13,16 @@ function adaptiveCellSize(width: number) {
 export function SiteAsciiBackdrop() {
   const [cellSize, setCellSize] = useState(14);
   const [conserveResources, setConserveResources] = useState(false);
+  const [compactViewport, setCompactViewport] = useState(false);
 
   useEffect(() => {
     let timer = 0;
     const update = () => {
       window.clearTimeout(timer);
-      timer = window.setTimeout(() => setCellSize(adaptiveCellSize(window.innerWidth)), 120);
+      timer = window.setTimeout(() => {
+        setCellSize(adaptiveCellSize(window.innerWidth));
+        setCompactViewport(window.innerWidth < 768);
+      }, 120);
     };
     update();
     const device = navigator as Navigator & { deviceMemory?: number };
@@ -56,8 +60,11 @@ export function SiteAsciiBackdrop() {
       pfx: {
         ...HERO_ASCII_PRESET.pfx,
         vignette: { enabled: true, intensity: 38 },
-        bloom: { enabled: true, intensity: 60 },
-        halftone: { enabled: true, intensity: 40 },
+        // Full-viewport blur and halftone copies are expensive at animation
+        // cadence. Dither remains animated; the surrounding glass supplies
+        // the perceived glow.
+        bloom: { enabled: false, intensity: 0 },
+        halftone: { enabled: false, intensity: 0 },
       },
     }),
     [cellSize, conserveResources],
@@ -68,7 +75,7 @@ export function SiteAsciiBackdrop() {
       <AsciiArtCanvas
         config={config}
         sourceImage="/ascii-editor/demos/generated/ref-068.webp"
-        frameRate={conserveResources ? 1 : 24}
+        frameRate={conserveResources ? 1 : compactViewport ? 12 : 18}
         pauseWhenOffscreen={false}
         className="h-[100dvh] w-[100dvw]"
       />

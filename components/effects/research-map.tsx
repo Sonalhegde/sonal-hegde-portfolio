@@ -100,6 +100,7 @@ export function ResearchMap() {
     let height = 430;
     let frame = 0;
     let visible = true;
+    let lastFrame = 0;
 
     const marker = (coordinates: [number, number], label: string, color: string, now: number, align: CanvasTextAlign) => {
       const point = projection(coordinates);
@@ -156,11 +157,34 @@ export function ResearchMap() {
       }, 120);
     });
     resize.observe(canvas);
-    const intersection = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }, { rootMargin: "100px" });
+    const canAnimate = () => visible && !document.hidden && !reducedMotion.matches;
+    const stop = () => {
+      if (frame) cancelAnimationFrame(frame);
+      frame = 0;
+    };
+    const animate = (now: number) => {
+      if (!canAnimate()) {
+        frame = 0;
+        return;
+      }
+      if (now - lastFrame >= 1000 / 20) {
+        lastFrame = now;
+        draw(now);
+      }
+      frame = requestAnimationFrame(animate);
+    };
+    const start = () => {
+      if (canAnimate() && frame === 0) frame = requestAnimationFrame(animate);
+    };
+    const intersection = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible) start(); else stop();
+    }, { rootMargin: "100px" });
     intersection.observe(canvas);
-    const animate = (now: number) => { frame = requestAnimationFrame(animate); if (visible && !document.hidden) draw(now); };
-    if (!reducedMotion.matches) frame = requestAnimationFrame(animate);
-    return () => { cancelAnimationFrame(frame); window.clearTimeout(resizeTimer); resize.disconnect(); intersection.disconnect(); };
+    const onVisibilityChange = () => { if (document.hidden) stop(); else start(); };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    start();
+    return () => { stop(); window.clearTimeout(resizeTimer); resize.disconnect(); intersection.disconnect(); document.removeEventListener("visibilitychange", onVisibilityChange); };
   }, []);
 
   return (

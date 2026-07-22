@@ -26,12 +26,12 @@ export function Hero() {
         </div>
 
         <div className="hero-grid-overlay absolute inset-0" aria-hidden="true" />
-        <div className="absolute inset-0 z-[2] bg-[linear-gradient(90deg,rgba(0,0,0,.94)_0%,rgba(0,0,0,.82)_42%,rgba(0,0,0,.24)_72%,rgba(0,0,0,.55)_100%)]" />
+        <div className="hero-text-scrim absolute inset-0 z-[2] bg-[linear-gradient(90deg,rgba(0,0,0,.94)_0%,rgba(0,0,0,.82)_42%,rgba(0,0,0,.24)_72%,rgba(0,0,0,.55)_100%)]" />
         <div className="absolute inset-x-0 bottom-0 z-[2] h-44 bg-gradient-to-t from-[#07080c] via-[#07080c]/72 to-transparent" />
         <Spotlight className="z-[3] from-[#c3f4ff]/45 via-[#B497CF]/20 to-transparent" size={360} springOptions={{ stiffness: 180, damping: 28, mass: 0.6 }} />
 
-        <div className="relative z-10 flex min-h-[780px] items-end px-5 pb-8 pt-28 md:min-h-[720px] md:items-center md:px-12 md:pb-12 md:pt-24 lg:px-16">
-          <div className="hero-copy-panel max-w-3xl">
+        <div className="hero-copy-layer relative z-10 flex min-h-[780px] items-end px-5 pb-8 pt-28 md:min-h-[720px] md:items-center md:px-12 md:pb-12 md:pt-24 lg:px-16">
+          <div className="hero-copy-panel min-w-0 max-w-3xl">
             <motion.div initial={{ opacity: 0, x: reducedMotion ? 0 : -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.08, duration: 0.35 }} className="mb-6 flex flex-wrap items-center gap-3">
               <span className="glass-pill inline-flex min-h-9 items-center gap-2 px-3 text-[10px] uppercase tracking-[0.2em] text-neutral-300">
                 <RadioTower size={13} className="text-[#c3f4ff]" aria-hidden="true" /> Embedded systems · Edge AI

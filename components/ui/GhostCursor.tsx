@@ -137,6 +137,9 @@ export default function GhostCursor({
     let currentX = 0;
     let currentY = 0;
     let animationFrame = 0;
+    let lastFrame = 0;
+    let resizeTimer = 0;
+    let active = !document.hidden;
 
     const resize = () => {
       width = window.innerWidth;
@@ -157,6 +160,15 @@ export default function GhostCursor({
     };
 
     const render = (time: number) => {
+      if (!active) {
+        animationFrame = 0;
+        return;
+      }
+      if (time - lastFrame < 1000 / 30) {
+        animationFrame = requestAnimationFrame(render);
+        return;
+      }
+      lastFrame = time;
       const smoothing = 1 - Math.min(0.94, Math.max(0.08, inertia));
       currentX += (targetX - currentX) * smoothing;
       currentY += (targetY - currentY) * smoothing;
@@ -172,13 +184,30 @@ export default function GhostCursor({
       animationFrame = requestAnimationFrame(render);
     };
 
-    window.addEventListener("resize", resize);
+    const onResize = () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(resize, 120);
+    };
+    const onVisibilityChange = () => {
+      active = !document.hidden;
+      if (!active && animationFrame) {
+        cancelAnimationFrame(animationFrame);
+        animationFrame = 0;
+      } else if (active && animationFrame === 0) {
+        animationFrame = requestAnimationFrame(render);
+      }
+    };
+
+    window.addEventListener("resize", onResize, { passive: true });
+    document.addEventListener("visibilitychange", onVisibilityChange);
     window.addEventListener("pointermove", move, { passive: true });
     animationFrame = requestAnimationFrame(render);
 
     return () => {
       cancelAnimationFrame(animationFrame);
-      window.removeEventListener("resize", resize);
+      window.clearTimeout(resizeTimer);
+      window.removeEventListener("resize", onResize);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("pointermove", move);
       composer.dispose();
       geometry.dispose();

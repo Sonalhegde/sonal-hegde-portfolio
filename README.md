@@ -9,8 +9,8 @@ A cinematic, accessible engineering portfolio for Sonal Hegde, focused on embedd
 
 ## Experience
 
-- Full-viewport Canvas2D dither renderer with a 24 fps adaptive cell budget
-- Original full-body Three.js humanoid with weighted pointer-reactive head tracking
+- Full-viewport Canvas2D dither renderer with an adaptive 18 fps desktop / 12 fps mobile budget
+- Self-hosted Spline robot scene with demand-driven cursor tracking and container-aware resizing
 - GSAP pill navigation, Framer Motion reveals, and reduced-motion support
 - D3/TopoJSON research map with a privacy-safe India marker and approximate visitor-location context
 - Portfolio-scoped FAQ assistant with a server API and deterministic static fallback
@@ -40,11 +40,19 @@ npm run build:surge
 surge ./surge-dist www.sonal.work.gd
 ```
 
+For a custom domain, point `www` to `na-west1.surge.sh`, then provision TLS:
+
+```bash
+surge encrypt www.sonal.work.gd
+```
+
+See [Surge custom-domain documentation](https://surge.sh/docs/platform/custom-domains) for root-domain DNS options.
+
 The static mirror uses the assistant's local portfolio index when `/api/chat` is unavailable. The server deployment can use `OPENAI_API_KEY`; it is read only inside the server route and must never be committed.
 
 ## Performance and accessibility
 
-- Animated canvases pause outside the viewport and when the tab is hidden
+- Animated canvases and the Spline scene pause off-screen and when the tab is hidden
 - Canvas device-pixel ratios are capped below 2
 - Heavy Three.js and postprocessing code is loaded after the hero's semantic content
 - Low-end devices receive lower-resolution or static visual fallbacks

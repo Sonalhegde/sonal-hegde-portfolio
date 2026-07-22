@@ -19,7 +19,8 @@ export function AmbientCursor() {
   useEffect(() => {
     if (
       window.matchMedia("(pointer: coarse)").matches ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      (navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 4)
     ) {
       return;
     }
@@ -30,8 +31,8 @@ export function AmbientCursor() {
         if (!cancelled) setCursor(() => module.default);
       });
     };
-    const idle = window.requestIdleCallback?.(load, { timeout: 1200 });
-    const timer = idle === undefined ? window.setTimeout(load, 400) : undefined;
+    const idle = window.requestIdleCallback?.(load, { timeout: 2000 });
+    const timer = idle === undefined ? window.setTimeout(load, 1200) : undefined;
 
     return () => {
       cancelled = true;
@@ -45,11 +46,13 @@ export function AmbientCursor() {
     <Cursor
       color="#B497CF"
       brightness={1.1}
-      trailLength={50}
+      trailLength={36}
       inertia={0.55}
       bloomStrength={0.12}
       grainIntensity={0.04}
       mixBlendMode="screen"
+      maxDevicePixelRatio={1.25}
+      targetPixels={1_000_000}
     />
   );
 }
