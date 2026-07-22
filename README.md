@@ -2,6 +2,18 @@
 
 A cinematic, accessible engineering portfolio for Sonal Hegde, focused on embedded systems, IoT, cyber-physical systems, edge AI, computer vision, and digital-twin research.
 
+## Website highlights
+
+- Interactive Spline robot with cursor tracking and responsive layout behavior
+- Animated Canvas2D dither backdrop with low-end and reduced-motion fallbacks
+- Glass-HUD navigation, scroll reveals, project cards, and accessibility-first controls
+- Privacy-conscious world map with an approximate visitor-location signal
+- Built-in portfolio assistant with a static fallback for the deployed site
+
+## Tech stack
+
+`Next.js` · `React` · `TypeScript` · `Tailwind CSS` · `Framer Motion` · `GSAP` · `Spline` · `Canvas2D` · `D3` · `TopoJSON` · `Three.js` · `Surge`
+
 ## Live site
 
 - Surge preview: [sonalhegde-work.surge.sh](https://sonalhegde-work.surge.sh)
@@ -48,7 +60,7 @@ surge encrypt www.sonal.work.gd
 
 See [Surge custom-domain documentation](https://surge.sh/docs/platform/custom-domains) for root-domain DNS options.
 
-The static mirror uses the assistant's local portfolio index when `/api/chat` is unavailable. The server deployment can use `OPENAI_API_KEY`; it is read only inside the server route and must never be committed.
+The static mirror uses the assistant's local portfolio index when `/api/chat` is unavailable. The optional server deployment reads its provider key only inside the server route; it must never be committed.
 
 ## Performance and accessibility
 
