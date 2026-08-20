@@ -6,6 +6,7 @@ import {
   AsciiArtCanvas,
   type AsciiArtConfig,
 } from "@/components/effects/ascii-art-canvas";
+import { sitePath } from "@/lib/site-path";
 import { cn } from "@/lib/utils";
 
 export type VaporBackgroundMode = "blur" | "color" | "photo" | "none";
@@ -96,7 +97,7 @@ type VaporHalftoneBackgroundProps = {
 };
 
 export function VaporHalftoneBackground({
-  imageSrc = "/ascii-editor/demos/generated/ref-068.webp",
+  imageSrc = sitePath("/ascii-editor/demos/generated/ref-068.webp"),
   config: overrides,
   className,
   frameRate = 24,

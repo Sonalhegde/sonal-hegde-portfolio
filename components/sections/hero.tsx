@@ -6,6 +6,7 @@ import { ArrowDown, FileText, GitBranch, Mail, Network, RadioTower } from "lucid
 import { GlitterName } from "@/components/effects/glitter-name";
 import { HeroRobotStage } from "@/components/effects/hero-robot-stage";
 import { usePrefersReducedMotion } from "@/components/effects/use-prefers-reduced-motion";
+import { sitePath } from "@/lib/site-path";
 import { Card } from "@/components/ui/card";
 import { BorderGlow } from "@/components/ui/border-glow";
 import { GlassButton } from "@/components/ui/glass-button";
@@ -15,6 +16,7 @@ import { SpecularButton } from "@/components/ui/specular-button";
 export function Hero() {
   const reducedMotion = usePrefersReducedMotion();
   const revealEase = [0.22, 1, 0.36, 1] as const;
+  const cvPath = sitePath("/cv");
 
   return (
     <section id="home" className="relative scroll-mt-28 px-3 pt-24 md:px-6 md:pt-28">
@@ -47,7 +49,7 @@ export function Hero() {
 
             <motion.div initial={{ opacity: 0, y: reducedMotion ? 0 : 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reducedMotion ? 0 : 0.5, duration: reducedMotion ? 0.15 : 0.34, ease: revealEase }} className="mt-7 flex flex-wrap gap-3">
               <SpecularButton href="#projects" icon={<ArrowDown size={16} aria-hidden="true" />}>Explore systems</SpecularButton>
-              <GlassButton href="/cv" target="_blank" rel="noopener noreferrer" download="Sonal-Hegde-CV.pdf" icon={<FileText size={16} aria-hidden="true" />}>CV</GlassButton>
+              <GlassButton href={cvPath} target="_blank" rel="noopener noreferrer" download="Sonal-Hegde-CV.pdf" icon={<FileText size={16} aria-hidden="true" />}>CV</GlassButton>
               <BorderGlow pill><GlassButton href="https://github.com/sonalhegde" target="_blank" rel="noreferrer" icon={<GitBranch size={16} aria-hidden="true" />} aria-label="Open Sonal Hegde’s GitHub">GitHub</GlassButton></BorderGlow>
               <BorderGlow pill className="hidden sm:inline-flex"><GlassButton href="https://linkedin.com/in/sonalhegde" target="_blank" rel="noreferrer" icon={<Network size={16} aria-hidden="true" />} aria-label="Open Sonal Hegde’s LinkedIn">LinkedIn</GlassButton></BorderGlow>
               <BorderGlow pill className="hidden sm:inline-flex"><GlassButton href="mailto:sonalhhegde@gmail.com" icon={<Mail size={16} aria-hidden="true" />}>Email</GlassButton></BorderGlow>

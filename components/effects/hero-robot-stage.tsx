@@ -4,6 +4,7 @@ import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from "react
 
 const HeroRobot = lazy(() => import("@/components/effects/robot-3d").then((module) => ({ default: module.HeroRobot })));
 import { usePrefersReducedMotion } from "@/components/effects/use-prefers-reduced-motion";
+import { sitePath } from "@/lib/site-path";
 import { SplineScene } from "@/components/ui/splite";
 
 const LIGHTWEIGHT_QUERY = "(hover: none), (pointer: coarse), (max-width: 780px)";
@@ -58,5 +59,5 @@ export function HeroRobotStage() {
     );
   }
 
-  return <SplineScene scene="/hero-robot.splinecode" className="h-full w-full" />;
+  return <SplineScene scene={sitePath("/hero-robot.splinecode")} className="h-full w-full" />;
 }

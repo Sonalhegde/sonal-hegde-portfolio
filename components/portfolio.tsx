@@ -24,6 +24,7 @@ import type { ReactNode } from "react";
 
 import { ResearchMap } from "@/components/effects/research-map";
 import { usePrefersReducedMotion } from "@/components/effects/use-prefers-reduced-motion";
+import { sitePath } from "@/lib/site-path";
 import { Hero } from "@/components/sections/hero";
 import { Card, CardContent } from "@/components/ui/card";
 import { BorderGlow } from "@/components/ui/border-glow";
@@ -37,6 +38,7 @@ import { SiteAssistant } from "@/components/ui/site-assistant";
 
 const GMAIL_COMPOSE = "https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=sonalhhegde@gmail.com&su=Portfolio%20Inquiry";
 const MAILTO = "mailto:sonalhhegde@gmail.com";
+const CV_PATH = sitePath("/cv");
 
 const experiences = [
   {
@@ -136,14 +138,14 @@ interface Certification {
 // expose verifiable issue dates, so these are the user-approved year-only fallbacks.
 // TODO: replace the year-only values and add credentialUrl when verified records are available.
 const certifications: Certification[] = [
-  { title: "Atlassian Certified Product Management Professional", issuer: "LinkedIn Learning & Atlassian", issuerLogoUrl: "/certifications/atlassian.ico", dateIssued: "2026", featured: true },
-  { title: "McKinsey Forward Program", issuer: "McKinsey.org", issuerLogoUrl: "/certifications/mckinsey.ico", dateIssued: "2026" },
-  { title: "Network Security Fundamentals", issuer: "Palo Alto Networks", issuerLogoUrl: "/certifications/palo-alto.ico", dateIssued: "2026", featured: true },
-  { title: "Introduction to MCP (Model Context Protocol)", issuer: "Anthropic", issuerLogoUrl: "/certifications/anthropic.ico", dateIssued: "2026" },
-  { title: "AI on Jetson Nano", issuer: "NVIDIA", issuerLogoUrl: "/certifications/nvidia.ico", dateIssued: "2025" },
-  { title: "AWS IoT Devices", issuer: "Amazon Web Services", issuerLogoUrl: "/certifications/aws.ico", dateIssued: "2025" },
-  { title: "Networking Basics", issuer: "Cisco", issuerLogoUrl: "/certifications/cisco.ico", dateIssued: "2025", featured: true },
-  { title: "Data Science & Analytics", issuer: "HP LIFE", issuerLogoUrl: "/certifications/hp-life.ico", dateIssued: "2025" },
+  { title: "Atlassian Certified Product Management Professional", issuer: "LinkedIn Learning & Atlassian", issuerLogoUrl: sitePath("/certifications/atlassian.ico"), dateIssued: "2026", featured: true },
+  { title: "McKinsey Forward Program", issuer: "McKinsey.org", issuerLogoUrl: sitePath("/certifications/mckinsey.ico"), dateIssued: "2026" },
+  { title: "Network Security Fundamentals", issuer: "Palo Alto Networks", issuerLogoUrl: sitePath("/certifications/palo-alto.ico"), dateIssued: "2026", featured: true },
+  { title: "Introduction to MCP (Model Context Protocol)", issuer: "Anthropic", issuerLogoUrl: sitePath("/certifications/anthropic.ico"), dateIssued: "2026" },
+  { title: "AI on Jetson Nano", issuer: "NVIDIA", issuerLogoUrl: sitePath("/certifications/nvidia.ico"), dateIssued: "2025" },
+  { title: "AWS IoT Devices", issuer: "Amazon Web Services", issuerLogoUrl: sitePath("/certifications/aws.ico"), dateIssued: "2025" },
+  { title: "Networking Basics", issuer: "Cisco", issuerLogoUrl: sitePath("/certifications/cisco.ico"), dateIssued: "2025", featured: true },
+  { title: "Data Science & Analytics", issuer: "HP LIFE", issuerLogoUrl: sitePath("/certifications/hp-life.ico"), dateIssued: "2025" },
   { title: "Time Series Analysis", issuer: "Infosys", issuerLogoUrl: "https://www.infosys.com/favicon.ico", dateIssued: "2025" },
 ];
 
@@ -274,7 +276,7 @@ export function Portfolio() {
 
         <Section id="contact">
           <ScrollReveal>
-            <Card className="contact-card relative overflow-hidden"><CardContent className="relative z-10 grid gap-8 p-7 md:grid-cols-[1fr_auto] md:items-end md:p-12"><div><p className="section-kicker">Signal open // 07</p><h2 className="geist-pixel-heading mt-4 max-w-3xl text-3xl tracking-[-0.03em] text-neutral-50 sm:text-4xl md:text-5xl">Let’s build something that senses, thinks, and responds.</h2><a href={MAILTO} className="mt-6 inline-block text-sm text-neutral-300 underline decoration-white/20 underline-offset-4 hover:text-[#c3f4ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B497CF]">sonalhhegde@gmail.com</a><a href={GMAIL_COMPOSE} target="_blank" rel="noopener noreferrer" className="ml-4 inline-flex items-center gap-1.5 text-xs text-[#B497CF] hover:text-[#c3f4ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B497CF]">Open in Gmail <ExternalLink size={11} /></a></div><div className="flex flex-wrap gap-3 md:max-w-[360px] md:justify-end"><GlassButton href="https://github.com/sonalhegde" target="_blank" rel="noreferrer" icon={<Github size={17} />}>GitHub</GlassButton><GlassButton href="https://linkedin.com/in/sonalhegde" target="_blank" rel="noreferrer" icon={<Linkedin size={17} />}>LinkedIn</GlassButton><GlassButton href={MAILTO} icon={<Mail size={17} />}>Email</GlassButton><GlassButton href="/cv" target="_blank" rel="noopener noreferrer" download="Sonal-Hegde-CV.pdf" icon={<FileText size={17} />}>CV</GlassButton></div></CardContent></Card>
+            <Card className="contact-card relative overflow-hidden"><CardContent className="relative z-10 grid gap-8 p-7 md:grid-cols-[1fr_auto] md:items-end md:p-12"><div><p className="section-kicker">Signal open // 07</p><h2 className="geist-pixel-heading mt-4 max-w-3xl text-3xl tracking-[-0.03em] text-neutral-50 sm:text-4xl md:text-5xl">Let’s build something that senses, thinks, and responds.</h2><a href={MAILTO} className="mt-6 inline-block text-sm text-neutral-300 underline decoration-white/20 underline-offset-4 hover:text-[#c3f4ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B497CF]">sonalhhegde@gmail.com</a><a href={GMAIL_COMPOSE} target="_blank" rel="noopener noreferrer" className="ml-4 inline-flex items-center gap-1.5 text-xs text-[#B497CF] hover:text-[#c3f4ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B497CF]">Open in Gmail <ExternalLink size={11} /></a></div><div className="flex flex-wrap gap-3 md:max-w-[360px] md:justify-end"><GlassButton href="https://github.com/sonalhegde" target="_blank" rel="noreferrer" icon={<Github size={17} />}>GitHub</GlassButton><GlassButton href="https://linkedin.com/in/sonalhegde" target="_blank" rel="noreferrer" icon={<Linkedin size={17} />}>LinkedIn</GlassButton><GlassButton href={MAILTO} icon={<Mail size={17} />}>Email</GlassButton><GlassButton href={CV_PATH} target="_blank" rel="noopener noreferrer" download="Sonal-Hegde-CV.pdf" icon={<FileText size={17} />}>CV</GlassButton></div></CardContent></Card>
           </ScrollReveal>
         </Section>
 

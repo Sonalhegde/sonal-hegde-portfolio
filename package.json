@@ -11,7 +11,7 @@
     "build:surge": "vinext build && node scripts/export-static.mjs",
     "start": "vinext start",
     "test": "vinext build && node --test tests/rendered-html.test.mjs",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern surge-dist --ignore-pattern work --ignore-pattern tmp",
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern surge-dist --ignore-pattern github-pages-dist --ignore-pattern work --ignore-pattern tmp",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {

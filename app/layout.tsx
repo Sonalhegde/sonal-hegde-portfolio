@@ -2,12 +2,14 @@
 import type { Metadata, Viewport } from "next";
 
 import { SiteAsciiBackdrop } from "@/components/effects/site-ascii-backdrop";
+import { sitePath } from "@/lib/site-path";
 import { SitePreloader } from "@/components/ui/site-preloader";
 
 import "./globals.css";
 
 export function generateMetadata(): Metadata {
-  const metadataBase = new URL("https://www.sonal.work.gd");
+  const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.sonal.work.gd";
+  const metadataBase = new URL(configuredSiteUrl.endsWith("/") ? configuredSiteUrl : `${configuredSiteUrl}/`);
   const description =
     "Portfolio of Sonal Hegde, an Electronics & Communication Engineering undergraduate building embedded systems, cyber-physical research prototypes, edge AI, and digital twins.";
 
@@ -20,7 +22,7 @@ export function generateMetadata(): Metadata {
       icon: [{ url: "/favicon.ico", type: "image/x-icon" }],
       shortcut: "/favicon.ico",
     },
-    alternates: { canonical: "https://www.sonal.work.gd" },
+    alternates: { canonical: metadataBase.toString().replace(/\/$/, "") },
     robots: { index: true, follow: true },
     keywords: [
       "Sonal Hegde",
@@ -52,7 +54,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-site-base-path={process.env.NEXT_PUBLIC_BASE_PATH ?? ""}>
       <head>
         <meta name="referrer" content="strict-origin-when-cross-origin" />
         <meta
@@ -61,7 +63,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preload" href="/ascii-editor/demos/generated/ref-068.webp" as="image" type="image/webp" />
+        <link rel="preload" href={sitePath("/ascii-editor/demos/generated/ref-068.webp")} as="image" type="image/webp" />
         <link href="https://fonts.googleapis.com/css2?family=Geist+Pixel&display=swap" rel="stylesheet" />
       </head>
       <body>

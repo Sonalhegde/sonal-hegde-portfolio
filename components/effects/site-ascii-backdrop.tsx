@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { AsciiArtCanvas, HERO_ASCII_PRESET } from "@/components/effects/ascii-art-canvas";
+import { sitePath } from "@/lib/site-path";
 
 function adaptiveCellSize(width: number) {
   // The tower needs deliberately chunky cells to retain the requested
@@ -74,7 +75,7 @@ export function SiteAsciiBackdrop() {
     <div className="site-ascii-backdrop" aria-hidden="true">
       <AsciiArtCanvas
         config={config}
-        sourceImage="/ascii-editor/demos/generated/ref-068.webp"
+        sourceImage={sitePath("/ascii-editor/demos/generated/ref-068.webp")}
         frameRate={conserveResources ? 1 : compactViewport ? 12 : 18}
         pauseWhenOffscreen={false}
         className="h-[100dvh] w-[100dvw]"
