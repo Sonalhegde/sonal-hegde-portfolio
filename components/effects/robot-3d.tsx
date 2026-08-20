@@ -32,11 +32,26 @@ function CapsuleSegment({
   );
 }
 
-function RobotScene({ reducedMotion, lowEnd }: { reducedMotion: boolean; lowEnd: boolean }) {
+function RobotScene({
+  reducedMotion,
+  lowEnd,
+  waveSignal,
+  touchTarget,
+}: {
+  reducedMotion: boolean;
+  lowEnd: boolean;
+  waveSignal: number;
+  touchTarget: { x: number; y: number } | null;
+}) {
   const rootRef = useRef<THREE.Group>(null);
   const headRef = useRef<THREE.Group>(null);
+  const rightArmRef = useRef<THREE.Group>(null);
+  const eyeMaterialsRef = useRef<THREE.MeshStandardMaterial[]>([]);
   const pointerTarget = useRef(new THREE.Vector2());
   const coarsePointer = useRef(false);
+  const waveState = useRef({ active: false, t: 0, lastSignal: 0 });
+  const blinkState = useRef({ next: 0, phase: 0 });
+  const blinkInitialized = useRef(false);
 
   const bodyMaterial = useMemo(
     () => new THREE.MeshPhysicalMaterial({
@@ -85,6 +100,11 @@ function RobotScene({ reducedMotion, lowEnd }: { reducedMotion: boolean; lowEnd:
   );
 
   useEffect(() => {
+    if (touchTarget) pointerTarget.current.set(touchTarget.x, touchTarget.y);
+    else if (coarsePointer.current) pointerTarget.current.set(0, 0);
+  }, [touchTarget]);
+
+  useEffect(() => {
     const media = window.matchMedia("(pointer: coarse)");
     const updatePointerType = () => {
       coarsePointer.current = media.matches;
@@ -129,6 +149,49 @@ function RobotScene({ reducedMotion, lowEnd }: { reducedMotion: boolean; lowEnd:
       2.6,
       delta,
     );
+
+    // Tap / click triggered wave gesture on the right arm.
+    if (waveSignal !== waveState.current.lastSignal) {
+      waveState.current.lastSignal = waveSignal;
+      waveState.current.active = true;
+      waveState.current.t = 0;
+    }
+    const arm = rightArmRef.current;
+    if (arm) {
+      if (waveState.current.active && !reducedMotion) {
+        waveState.current.t += delta;
+        const duration = 1.5;
+        const progress = Math.min(waveState.current.t / duration, 1);
+        const lift = Math.sin(progress * Math.PI) * 2.05;
+        const wag = progress > 0.18 ? Math.sin(elapsed * 9) * 0.3 * Math.sin(progress * Math.PI) : 0;
+        arm.rotation.z = THREE.MathUtils.damp(arm.rotation.z, lift, 6, delta);
+        arm.rotation.x = THREE.MathUtils.damp(arm.rotation.x, wag, 6, delta);
+        if (progress >= 1) waveState.current.active = false;
+      } else {
+        arm.rotation.z = THREE.MathUtils.damp(arm.rotation.z, 0, 4, delta);
+        arm.rotation.x = THREE.MathUtils.damp(arm.rotation.x, 0, 4, delta);
+      }
+    }
+
+    // Idle blink of the visor light strip.
+    if (!reducedMotion) {
+      if (!blinkInitialized.current) {
+        blinkInitialized.current = true;
+        blinkState.current.next = 3 + Math.random() * 3;
+      }
+      blinkState.current.next -= delta;
+      if (blinkState.current.next <= 0 && blinkState.current.phase === 0) {
+        blinkState.current.phase = 1;
+        blinkState.current.next = 0.12;
+      } else if (blinkState.current.phase === 1 && blinkState.current.next <= 0) {
+        blinkState.current.phase = 0;
+        blinkState.current.next = 3 + Math.random() * 4;
+      }
+      const dim = blinkState.current.phase === 1 ? 0.15 : 4.2;
+      for (const material of eyeMaterialsRef.current) {
+        material.emissiveIntensity = THREE.MathUtils.damp(material.emissiveIntensity, dim, 10, delta);
+      }
+    }
   });
 
   return (
@@ -144,7 +207,17 @@ function RobotScene({ reducedMotion, lowEnd }: { reducedMotion: boolean; lowEnd:
           {[-2.5, -1.5, -0.5, 0.5, 1.5, 2.5].map((index) => (
             <mesh key={index} position={[index * 0.075, -0.08, 0.585]}>
               <sphereGeometry args={[0.021, 12, 10]} />
-              <meshStandardMaterial color="#f4fbff" emissive="#c3f4ff" emissiveIntensity={4.2} toneMapped={false} />
+              <meshStandardMaterial
+                ref={(material) => {
+                  if (material && !eyeMaterialsRef.current.includes(material)) {
+                    eyeMaterialsRef.current.push(material);
+                  }
+                }}
+                color="#f4fbff"
+                emissive="#c3f4ff"
+                emissiveIntensity={4.2}
+                toneMapped={false}
+              />
             </mesh>
           ))}
         </group>
@@ -154,35 +227,48 @@ function RobotScene({ reducedMotion, lowEnd }: { reducedMotion: boolean; lowEnd:
         </mesh>
         <RoundedBox args={[1.48, 1.78, 0.72]} radius={0.34} smoothness={8} position={[0, 0.62, 0]} material={bodyMaterial} castShadow />
 
-        {([-1, 1] as const).map((side) => (
-          <group key={side}>
-            <group position={[side * 0.96, 1.13, 0]} rotation={[0, 0, side * -0.13]}>
-              <mesh material={bodyMaterial} scale={[1.1, 0.88, 1]} castShadow>
-                <sphereGeometry args={[0.36, 32, 24]} />
-              </mesh>
-              {[-0.16, -0.08, 0, 0.08, 0.16].map((offset) => (
-                <mesh key={offset} position={[side * 0.28, offset, 0]} rotation={[0, Math.PI / 2, 0]} material={jointMaterial}>
-                  <torusGeometry args={[0.2, 0.018, 8, 20]} />
+        {([-1, 1] as const).map((side) => {
+          const shoulder: [number, number, number] = [side * 0.96, 1.13, 0];
+          const armBody = (
+            <>
+              <group position={shoulder} rotation={[0, 0, side * -0.13]}>
+                <mesh material={bodyMaterial} scale={[1.1, 0.88, 1]} castShadow>
+                  <sphereGeometry args={[0.36, 32, 24]} />
                 </mesh>
-              ))}
-            </group>
-            <CapsuleSegment position={[side * 1.1, 0.36, 0]} rotation={[0, 0, side * -0.11]} radius={0.27} length={0.75} material={bodyMaterial} />
-            <mesh position={[side * 1.18, -0.16, 0]} material={jointMaterial}>
-              <sphereGeometry args={[0.25, 28, 20]} />
-            </mesh>
-            <CapsuleSegment position={[side * 1.23, -0.75, 0.04]} rotation={[side * 0.04, 0, side * -0.06]} radius={0.24} length={0.72} material={bodyMaterial} />
-            <group position={[side * 1.27, -1.3, 0.1]} rotation={[0.12, 0, side * -0.06]}>
-              <mesh material={bodyMaterial} scale={[0.28, 0.35, 0.22]} castShadow>
-                <sphereGeometry args={[1, 28, 20]} />
+                {[-0.16, -0.08, 0, 0.08, 0.16].map((offset) => (
+                  <mesh key={offset} position={[side * 0.28, offset, 0]} rotation={[0, Math.PI / 2, 0]} material={jointMaterial}>
+                    <torusGeometry args={[0.2, 0.018, 8, 20]} />
+                  </mesh>
+                ))}
+              </group>
+              <CapsuleSegment position={[side * 1.1, 0.36, 0]} rotation={[0, 0, side * -0.11]} radius={0.27} length={0.75} material={bodyMaterial} />
+              <mesh position={[side * 1.18, -0.16, 0]} material={jointMaterial}>
+                <sphereGeometry args={[0.25, 28, 20]} />
               </mesh>
-              {[0, 1, 2].map((finger) => (
-                <mesh key={finger} position={[side * (0.17 + finger * 0.025), -0.1 + finger * 0.075, 0.08]} rotation={[0.35, 0, side * -0.25]} material={jointMaterial}>
-                  <capsuleGeometry args={[0.035, 0.17, 5, 10]} />
+              <CapsuleSegment position={[side * 1.23, -0.75, 0.04]} rotation={[side * 0.04, 0, side * -0.06]} radius={0.24} length={0.72} material={bodyMaterial} />
+              <group position={[side * 1.27, -1.3, 0.1]} rotation={[0.12, 0, side * -0.06]}>
+                <mesh material={bodyMaterial} scale={[0.28, 0.35, 0.22]} castShadow>
+                  <sphereGeometry args={[1, 28, 20]} />
                 </mesh>
-              ))}
-            </group>
-          </group>
-        ))}
+                {[0, 1, 2].map((finger) => (
+                  <mesh key={finger} position={[side * (0.17 + finger * 0.025), -0.1 + finger * 0.075, 0.08]} rotation={[0.35, 0, side * -0.25]} material={jointMaterial}>
+                    <capsuleGeometry args={[0.035, 0.17, 5, 10]} />
+                  </mesh>
+                ))}
+              </group>
+            </>
+          );
+
+          if (side === 1) {
+            // Right arm gets a shoulder-anchored pivot group so the wave gesture rotates naturally.
+            return (
+              <group key={side} position={shoulder} ref={rightArmRef}>
+                <group position={[-shoulder[0], -shoulder[1], -shoulder[2]]}>{armBody}</group>
+              </group>
+            );
+          }
+          return <group key={side}>{armBody}</group>;
+        })}
 
         <RoundedBox args={[0.82, 0.42, 0.58]} radius={0.18} smoothness={5} position={[0, -0.48, 0]} material={jointMaterial} />
 
@@ -228,10 +314,12 @@ function RobotScene({ reducedMotion, lowEnd }: { reducedMotion: boolean; lowEnd:
   );
 }
 
-export function HeroRobot() {
+export function HeroRobot({ readyEventName = "hero-scene-ready" }: { readyEventName?: string } = {}) {
   const reducedMotion = usePrefersReducedMotion();
   const [containerRef, inView] = useElementInView<HTMLDivElement>();
   const [lowEnd, setLowEnd] = useState(false);
+  const [waveSignal, setWaveSignal] = useState(0);
+  const [touchTarget, setTouchTarget] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     const device = navigator as Navigator & { deviceMemory?: number };
@@ -242,11 +330,49 @@ export function HeroRobot() {
     return () => window.clearTimeout(timer);
   }, []);
 
+  // Robot renders synchronously (no external asset to fetch), so it's ready immediately —
+  // this lets the site preloader dismiss right away rather than waiting on a network scene.
+  useEffect(() => {
+    window.dispatchEvent(new Event(readyEventName));
+  }, [readyEventName]);
+
+  const triggerWave = () => setWaveSignal((value) => value + 1);
+  const updateTouchTarget = (event: { clientX: number; clientY: number }) => {
+    if (reducedMotion) return;
+    setTouchTarget({
+      x: THREE.MathUtils.clamp((event.clientX / window.innerWidth) * 2 - 1, -1, 1),
+      y: THREE.MathUtils.clamp(1 - (event.clientY / window.innerHeight) * 2, -1, 1),
+    });
+  };
+
   return (
-    <div ref={containerRef} className="robot-3d-canvas" role="img" aria-label="A full-body glossy humanoid robot whose head gently follows the pointer">
+    <div
+      ref={containerRef}
+      className="robot-3d-canvas"
+      role="button"
+      tabIndex={0}
+      aria-label="A full-body glossy humanoid robot. Click or tap to make it wave; its head gently follows your pointer. Drag on touch devices to move its head."
+      onClick={triggerWave}
+      onPointerDown={(event) => {
+        if (event.pointerType !== "mouse") {
+          updateTouchTarget(event);
+          triggerWave();
+        }
+      }}
+      onPointerMove={(event) => {
+        if (event.pointerType !== "mouse") updateTouchTarget(event);
+      }}
+      onPointerUp={() => setTouchTarget(null)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          triggerWave();
+        }
+      }}
+    >
       <Canvas
         camera={{ position: [0, -0.22, 9.4], fov: 38, near: 0.1, far: 100 }}
-        dpr={[1, lowEnd ? 1.15 : 1.7]}
+        dpr={[1, lowEnd ? 1.35 : 2]}
         frameloop={inView && !reducedMotion ? "always" : "never"}
         shadows={!lowEnd}
         gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
@@ -259,7 +385,7 @@ export function HeroRobot() {
         }}
         performance={{ min: 0.55 }}
       >
-        <RobotScene reducedMotion={reducedMotion} lowEnd={lowEnd} />
+        <RobotScene reducedMotion={reducedMotion} lowEnd={lowEnd} waveSignal={waveSignal} touchTarget={touchTarget} />
       </Canvas>
     </div>
   );

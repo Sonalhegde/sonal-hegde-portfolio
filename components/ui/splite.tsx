@@ -86,7 +86,17 @@ function InteractiveSpline({ scene, className }: SplineSceneProps) {
   const handleLoad = useCallback((app: Application) => {
     appRef.current = app;
     const { width, height } = sizeRef.current;
-    if (width && height) app.setSize(width, height);
+    if (width && height) {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const canvas = shellRef.current?.querySelector("canvas");
+      if (canvas) {
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(height * dpr);
+      }
+      app.setSize(width, height);
+    }
     const objects = app.getAllObjects();
     const objectNames = objects.map((object) => object.name).filter(Boolean);
 
@@ -109,7 +119,6 @@ function InteractiveSpline({ scene, className }: SplineSceneProps) {
     if (!shell) return;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const touchOnlyDevice = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
     let frame = 0;
     let lastTick = 0;
     let pointerActiveUntil = 0;
@@ -120,6 +129,18 @@ function InteractiveSpline({ scene, className }: SplineSceneProps) {
       sizeRef.current = { width, height };
       const app = appRef.current;
       if (!app || width < 2 || height < 2) return;
+      const canvas = shell.querySelector("canvas");
+      if (canvas) {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+        canvas.style.maxWidth = "100%";
+        canvas.style.maxHeight = "100%";
+        if (canvas.width < Math.round(width * dpr) || canvas.height < Math.round(height * dpr)) {
+          canvas.width = Math.round(width * dpr);
+          canvas.height = Math.round(height * dpr);
+        }
+      }
       app.setSize(width, height);
       app.requestRender();
     };
@@ -132,7 +153,7 @@ function InteractiveSpline({ scene, className }: SplineSceneProps) {
     });
     resizeObserver.observe(shell);
 
-    if (reducedMotion || touchOnlyDevice) {
+    if (reducedMotion) {
       return () => {
         resizeObserver.disconnect();
         window.clearTimeout(resizeTimer);
@@ -152,6 +173,10 @@ function InteractiveSpline({ scene, className }: SplineSceneProps) {
       pointerActiveUntil = performance.now() + 700;
       wakeTrackingRef.current?.();
     };
+    const onPointerDown = (event: PointerEvent) => {
+      onPointerMove(event);
+      pointerActiveUntil = performance.now() + 1600;
+    };
     const resetTarget = () => {
       targetRef.current.x = 0;
       targetRef.current.y = 0;
@@ -160,6 +185,9 @@ function InteractiveSpline({ scene, className }: SplineSceneProps) {
     };
 
     window.addEventListener("pointermove", onPointerMove, { passive: true });
+    shell.addEventListener("pointerdown", onPointerDown, { passive: true });
+    shell.addEventListener("pointerup", resetTarget, { passive: true });
+    shell.addEventListener("pointercancel", resetTarget, { passive: true });
     window.addEventListener("blur", resetTarget);
 
     const tick = () => {
@@ -238,6 +266,9 @@ function InteractiveSpline({ scene, className }: SplineSceneProps) {
       resizeObserver.disconnect();
       window.clearTimeout(resizeTimer);
       window.removeEventListener("pointermove", onPointerMove);
+      shell.removeEventListener("pointerdown", onPointerDown);
+      shell.removeEventListener("pointerup", resetTarget);
+      shell.removeEventListener("pointercancel", resetTarget);
       window.removeEventListener("blur", resetTarget);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       stopTracking();

@@ -22,7 +22,7 @@ export function GlassNav() {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (!reduced && navRef.current) {
       const context = gsap.context(() => {
-        gsap.fromTo("[data-pill-nav]", { y: -18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.62, ease: "power3.out", stagger: 0.045 });
+        gsap.fromTo("[data-pill-nav]", { y: -18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.42, ease: "power4.out", stagger: 0.035, overwrite: "auto" });
       }, navRef);
       return () => context.revert();
     }

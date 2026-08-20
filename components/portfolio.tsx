@@ -23,6 +23,7 @@ import {
 import type { ReactNode } from "react";
 
 import { ResearchMap } from "@/components/effects/research-map";
+import { usePrefersReducedMotion } from "@/components/effects/use-prefers-reduced-motion";
 import { Hero } from "@/components/sections/hero";
 import { Card, CardContent } from "@/components/ui/card";
 import { BorderGlow } from "@/components/ui/border-glow";
@@ -61,7 +62,6 @@ const experiences = [
       "Built and trained a YOLOv8 computer-vision pipeline to detect and localize marine debris in drone imagery.",
       "Curated and annotated a custom floating-debris dataset, using augmentation and transfer learning to exceed 90% detection accuracy.",
       "Integrated detections with a live web dashboard for real-time monitoring.",
-      "Stack: YOLOv8, PyTorch, OpenCV, Python.",
     ],
   },
 ];
@@ -161,6 +161,8 @@ function TechTag({ children }: { children: ReactNode }) {
 }
 
 export function Portfolio() {
+  const reducedMotion = usePrefersReducedMotion();
+
   return (
     <div className="relative overflow-clip">
       <div className="ambient-grid" aria-hidden="true" />
@@ -192,11 +194,11 @@ export function Portfolio() {
         <Section id="experience">
           <ScrollReveal>
             <SectionHeading eyebrow="Experience // 01" title="Applied research in the field." copy="Cyber-physical infrastructure and edge computer vision, built in academic research environments across India and Oman." />
-            <div className="relative grid gap-5 before:absolute before:bottom-8 before:left-[25px] before:top-8 before:w-px before:bg-gradient-to-b before:from-[#B497CF]/70 before:via-[#c3f4ff]/30 before:to-transparent md:gap-7 md:before:left-[31px]">
+            <div className="grid gap-5 md:gap-7">
               {experiences.map((experience) => (
-                <Card key={experience.index} className="group relative ml-3 overflow-hidden transition-colors hover:border-[#B497CF]/35 md:ml-5">
+                <Card key={experience.index} className="group relative overflow-hidden transition-colors hover:border-[#B497CF]/35">
                   <CardContent className="grid gap-6 p-6 md:grid-cols-[72px_minmax(0,1fr)] md:p-8">
-                    <div className="relative z-10 flex size-12 items-center justify-center rounded-2xl border border-[#B497CF]/30 bg-[#B497CF]/10 text-[#c3f4ff] md:size-16">{experience.icon}<span className="absolute -right-3 -top-3 font-mono text-[9px] text-neutral-600">{experience.index}</span></div>
+                    <div className="flex size-12 items-center justify-center rounded-2xl border border-[#B497CF]/30 bg-[#B497CF]/10 text-[#c3f4ff] md:size-16">{experience.icon}</div>
                     <div><div><h3 className="text-xl font-medium tracking-[-0.02em] text-neutral-100 md:text-2xl">{experience.title}</h3><div className="mt-2 max-w-3xl text-sm leading-6 text-[#B497CF]">{experience.organization}</div></div>
                       <ul className="mt-6 grid gap-3 text-sm leading-6 text-[#a3a8b8] md:text-[15px]">{experience.bullets.map((bullet) => <li key={bullet} className="flex gap-3"><span className="mt-[10px] size-1 shrink-0 rounded-full bg-[#c3f4ff] shadow-[0_0_8px_#c3f4ff]" /><span>{bullet}</span></li>)}</ul>
                     </div>
@@ -212,7 +214,7 @@ export function Portfolio() {
             <SectionHeading eyebrow="Projects // 02" title="Seven systems. One through-line." copy="Each build connects hardware, communication, intelligence, or the human interface around a real physical problem." />
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {projects.map((project, index) => (
-                <motion.article key={project.title} whileHover={{ y: -5, scale: 1.005 }} transition={{ type: "spring", stiffness: 300, damping: 30 }} className={index === 0 ? "md:col-span-2 xl:col-span-2" : ""}>
+                <motion.article key={project.title} whileHover={reducedMotion ? undefined : { y: -4 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }} className={index === 0 ? "md:col-span-2 xl:col-span-2" : ""}>
                   <BorderGlow className="h-full"><Card className="project-card group h-full min-h-[330px] overflow-hidden"><CardContent className="flex h-full flex-col p-6 md:p-7"><div className="flex items-center justify-between"><span className="flex size-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.06] text-[#c3f4ff] transition-colors group-hover:border-[#B497CF]/40 group-hover:bg-[#B497CF]/10">{project.icon}</span><span className="font-mono text-[10px] tracking-[0.2em] text-neutral-600">{String(index + 1).padStart(2, "0")} / 07</span></div><h3 className="mt-7 text-xl font-medium leading-7 tracking-[-0.025em] text-neutral-100 md:text-2xl">{project.title}</h3><p className="mt-4 flex-1 text-sm leading-6 text-[#a3a8b8]">{project.description}</p><div className="mt-6 flex flex-wrap gap-2">{project.tech.map((item) => <TechTag key={item}>{item}</TechTag>)}</div>{project.related && <a href="#experience" className="mt-5 inline-flex items-center gap-2 text-xs font-medium text-[#B497CF] hover:text-[#c3f4ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B497CF]">Related Oman internship <ArrowUpRight size={13} /></a>}</CardContent></Card></BorderGlow>
                 </motion.article>
               ))}

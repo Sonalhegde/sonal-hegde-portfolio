@@ -1,13 +1,18 @@
-import { env } from "cloudflare:workers";
 import { drizzle } from "drizzle-orm/d1";
 import * as schema from "./schema";
 
-export function getDb() {
-  if (!env.DB) {
-    throw new Error(
-      "Cloudflare D1 binding `DB` is unavailable. Set the `d1` field in .openai/hosting.json to `DB` or let your control plane inject the real binding values before using the database."
-    );
-  }
+type WorkerEnv = { DB?: unknown };
 
-  return drizzle(env.DB, { schema });
+type D1DatabaseLike = Parameters<typeof drizzle>[0];
+
+export async function getDb() {
+  try {
+    const workerModule = await import("cloudflare:workers") as { env?: WorkerEnv };
+    const binding = workerModule.env?.DB;
+    if (!binding) return null;
+    return drizzle(binding as D1DatabaseLike, { schema });
+  } catch {
+    // Local Next/Vinext and Surge static builds do not provide Cloudflare bindings.
+    return null;
+  }
 }

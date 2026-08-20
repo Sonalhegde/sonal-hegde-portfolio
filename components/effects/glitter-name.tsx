@@ -70,7 +70,7 @@ export function GlitterName() {
               rotate: landed || reducedMotion ? 0 : index % 2 ? 2.5 : -2.5,
               filter: landed ? "blur(0px)" : "blur(0.7px)",
             }}
-            transition={{ type: "spring", stiffness: 300, damping: 26 }}
+            transition={{ duration: reducedMotion ? 0.12 : 0.22, ease: [0.22, 1, 0.36, 1] }}
           >
             {letter === " " ? "\u00A0" : letter}
             {!reducedMotion && landed && NAME[index] !== " " && SPARKS.slice(0, 3 + (index % 2)).map((spark, sparkIndex) => (

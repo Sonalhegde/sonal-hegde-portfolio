@@ -1,7 +1,6 @@
 /* eslint-disable @next/next/no-page-custom-font */
 import type { Metadata, Viewport } from "next";
 
-import { AmbientCursor } from "@/components/effects/ambient-cursor";
 import { SiteAsciiBackdrop } from "@/components/effects/site-ascii-backdrop";
 import { SitePreloader } from "@/components/ui/site-preloader";
 
@@ -69,7 +68,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <SitePreloader />
         <SiteAsciiBackdrop />
         {children}
-        <AmbientCursor />
       </body>
     </html>
   );

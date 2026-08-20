@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Bot, CornerDownLeft, MessageCircle, Sparkles, X } from "lucide-react";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
+import { usePrefersReducedMotion } from "@/components/effects/use-prefers-reduced-motion";
 import { portfolioFallbackAnswer } from "@/lib/portfolio-context";
 
 type Message = { role: "user" | "assistant"; content: string };
@@ -14,6 +15,7 @@ export function SiteAssistant() {
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const reducedMotion = usePrefersReducedMotion();
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", content: "Hi — I’m Sonal’s portfolio guide. Ask me about the projects, research, stack, CV, or contact details." },
   ]);
@@ -74,10 +76,10 @@ export function SiteAssistant() {
             aria-modal="false"
             aria-labelledby="assistant-title"
             className="assistant-panel glass-panel"
-            initial={{ opacity: 0, y: 18, scale: 0.96 }}
+            initial={{ opacity: 0, y: reducedMotion ? 0 : 18, scale: reducedMotion ? 1 : 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.98 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            exit={{ opacity: 0, y: reducedMotion ? 0 : 12, scale: reducedMotion ? 1 : 0.98 }}
+            transition={{ duration: reducedMotion ? 0.12 : 0.22, ease: [0.22, 1, 0.36, 1] }}
           >
             <header className="flex items-start justify-between border-b border-white/10 p-4">
               <div className="flex gap-3">
@@ -118,9 +120,9 @@ export function SiteAssistant() {
         type="button"
         onClick={() => setOpen((value) => !value)}
         className="assistant-trigger glass-panel"
-        whileHover={{ scale: 1.03 }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        whileHover={reducedMotion ? undefined : { scale: 1.03 }}
+        whileTap={reducedMotion ? undefined : { scale: 0.98 }}
+        transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
         aria-expanded={open}
         aria-controls="portfolio-assistant"
       >

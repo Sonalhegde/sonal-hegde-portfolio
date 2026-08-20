@@ -283,6 +283,40 @@ body::before {
   backdrop-filter: blur(16px) saturate(170%);
 }
 
+/* Pointer-tracked glow used by GlassButton / SpecularButton — brightens under the cursor
+   and gives touch users an immediate, tactile pressed state. */
+.glass-pill-interactive {
+  overflow: hidden;
+}
+
+.glass-pill-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(120px circle at var(--btn-x, 50%) var(--btn-y, 50%), rgba(195, 244, 255, 0.32), transparent 70%);
+  transition: opacity 220ms ease;
+}
+
+a:hover > .glass-pill-glow,
+a:focus-visible > .glass-pill-glow {
+  opacity: 1;
+}
+
+.glass-pill-pressed {
+  transform: scale(0.96);
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+@media (hover: none) {
+  .glass-pill-interactive:active .glass-pill-glow,
+  .specular-button:active .glass-pill-glow {
+    opacity: 1;
+  }
+}
+
 .specular-button-shine {
   position: absolute;
   inset: -1px;
@@ -320,7 +354,16 @@ body::before {
   width: 100%;
   height: 100%;
   min-height: 36rem;
+  cursor: pointer;
   filter: drop-shadow(0 30px 70px rgba(0, 0, 0, 0.58));
+}
+
+.robot-3d-canvas canvas { touch-action: pan-y; }
+
+.robot-3d-canvas:focus-visible {
+  outline: 2px solid var(--accent-cyan);
+  outline-offset: 6px;
+  border-radius: 1.5rem;
 }
 
 .robot-3d-canvas::after {
