@@ -20,30 +20,30 @@ export function Hero() {
 
   return (
     <section id="home" className="relative scroll-mt-28 px-3 pt-24 md:px-6 md:pt-28">
-      <Card className="hero-card relative mx-auto min-h-[780px] w-full max-w-7xl overflow-hidden border-white/15 bg-[#07080c]/60 md:min-h-[720px]">
-        <div className="hero-robot-glow absolute right-0 top-12 z-[1] h-[34rem] w-full opacity-90 sm:inset-y-0 sm:top-0 sm:h-auto sm:w-[72%] lg:w-[60%]">
+      <Card className="hero-card relative mx-auto min-h-[780px] w-full max-w-7xl overflow-hidden border-[var(--card-border)] bg-[var(--hero-card-bg)] md:min-h-[720px]">
+        <div className="hero-robot-zone absolute right-0 top-12 z-[3] h-[34rem] w-full sm:inset-y-0 sm:top-0 sm:h-auto sm:w-[72%] lg:w-[60%]">
           <HeroRobotStage />
         </div>
 
-        <div className="hero-grid-overlay absolute inset-0" aria-hidden="true" />
-        <div className="hero-text-scrim absolute inset-0 z-[2] bg-[linear-gradient(90deg,rgba(0,0,0,.94)_0%,rgba(0,0,0,.82)_42%,rgba(0,0,0,.24)_72%,rgba(0,0,0,.55)_100%)]" />
-        <div className="absolute inset-x-0 bottom-0 z-[2] h-44 bg-gradient-to-t from-[#07080c] via-[#07080c]/72 to-transparent" />
-        <Spotlight className="z-[3] from-[#c3f4ff]/45 via-[#B497CF]/20 to-transparent" size={360} springOptions={{ stiffness: 180, damping: 28, mass: 0.6 }} />
+        <div className="hero-grid-overlay pointer-events-none absolute inset-0" aria-hidden="true" />
+        <div className="hero-text-scrim pointer-events-none absolute inset-0 z-[1]" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-44 hero-fade-bottom" />
+        <Spotlight className="z-[2] from-[#c3f4ff]/45 via-[#B497CF]/20 to-transparent" size={360} springOptions={{ stiffness: 180, damping: 28, mass: 0.6 }} />
 
         <div className="hero-copy-layer relative z-10 flex min-h-[780px] items-end px-5 pb-8 pt-28 md:min-h-[720px] md:items-center md:px-12 md:pb-12 md:pt-24 lg:px-16">
           <div className="hero-copy-panel min-w-0 max-w-3xl">
             <motion.div initial={{ opacity: 0, x: reducedMotion ? 0 : -12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: reducedMotion ? 0 : 0.08, duration: reducedMotion ? 0.15 : 0.28, ease: revealEase }} className="mb-6 flex flex-wrap items-center gap-3">
-              <span className="glass-pill inline-flex min-h-9 items-center gap-2 px-3 text-[10px] uppercase tracking-[0.2em] text-neutral-300">
-                <RadioTower size={13} className="text-[#c3f4ff]" aria-hidden="true" /> Embedded systems · Edge AI
+              <span className="glass-pill inline-flex min-h-9 items-center gap-2 px-3 text-[10px] uppercase tracking-[0.2em] text-[var(--text-body)]">
+                <RadioTower size={13} className="text-[var(--accent-highlight)]" aria-hidden="true" /> Embedded systems · Edge AI
               </span>
-              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-neutral-500">node://india</span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--text-muted)]">node://india</span>
             </motion.div>
 
             <GlitterName />
-            <motion.p initial={{ opacity: 0, y: reducedMotion ? 0 : 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reducedMotion ? 0 : 0.34, duration: reducedMotion ? 0.15 : 0.34, ease: revealEase }} className="geist-pixel-heading mt-5 text-base tracking-[0.04em] text-[#B497CF] sm:text-lg md:text-xl">
+            <motion.p initial={{ opacity: 0, y: reducedMotion ? 0 : 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reducedMotion ? 0 : 0.34, duration: reducedMotion ? 0.15 : 0.34, ease: revealEase }} className="geist-pixel-heading mt-5 text-base tracking-[0.04em] text-[var(--accent-secondary)] sm:text-lg md:text-xl">
               Bridging Circuits, Code, and Cognition.
             </motion.p>
-            <motion.p initial={{ opacity: 0, y: reducedMotion ? 0 : 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reducedMotion ? 0 : 0.42, duration: reducedMotion ? 0.15 : 0.34, ease: revealEase }} className="mt-4 max-w-2xl text-base leading-7 text-neutral-200 md:text-lg md:leading-8">
+            <motion.p initial={{ opacity: 0, y: reducedMotion ? 0 : 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reducedMotion ? 0 : 0.42, duration: reducedMotion ? 0.15 : 0.34, ease: revealEase }} className="mt-4 max-w-2xl text-base leading-7 text-[var(--text-primary)] md:text-lg md:leading-8">
               I turn sensor data and camera feeds into reliable real-time decisions on constrained hardware — from firmware-level drivers to optimized edge computer-vision pipelines.
             </motion.p>
 

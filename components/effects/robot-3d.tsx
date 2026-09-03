@@ -37,11 +37,13 @@ function RobotScene({
   lowEnd,
   waveSignal,
   touchTarget,
+  lightTheme,
 }: {
   reducedMotion: boolean;
   lowEnd: boolean;
   waveSignal: number;
   touchTarget: { x: number; y: number } | null;
+  lightTheme: boolean;
 }) {
   const rootRef = useRef<THREE.Group>(null);
   const headRef = useRef<THREE.Group>(null);
@@ -52,6 +54,7 @@ function RobotScene({
   const waveState = useRef({ active: false, t: 0, lastSignal: 0 });
   const blinkState = useRef({ next: 0, phase: 0 });
   const blinkInitialized = useRef(false);
+  const lastPointerActivity = useRef(0);
 
   const bodyMaterial = useMemo(
     () => new THREE.MeshPhysicalMaterial({
@@ -112,6 +115,7 @@ function RobotScene({
     };
     const onPointerMove = (event: PointerEvent) => {
       if (reducedMotion || coarsePointer.current) return;
+      lastPointerActivity.current = performance.now();
       pointerTarget.current.set(
         THREE.MathUtils.clamp((event.clientX / window.innerWidth) * 2 - 1, -1, 1),
         THREE.MathUtils.clamp(1 - (event.clientY / window.innerHeight) * 2, -1, 1),
@@ -133,19 +137,24 @@ function RobotScene({
     if (!root || !head) return;
 
     const elapsed = clock.elapsedTime;
-    const cursorX = reducedMotion ? 0 : pointerTarget.current.x;
-    const cursorY = reducedMotion ? 0 : pointerTarget.current.y;
+    // After ~4s without pointer movement the robot drifts into a wandering
+    // "look around" glance instead of holding the last cursor position.
+    const pointerIdle = performance.now() - lastPointerActivity.current > 4000;
+    const idleWanderX = Math.sin(elapsed * 0.24) * 0.42 + Math.sin(elapsed * 0.11) * 0.2;
+    const idleWanderY = Math.sin(elapsed * 0.17 + 1.3) * 0.18;
+    const glanceX = pointerIdle || reducedMotion ? (reducedMotion ? 0 : idleWanderX) : pointerTarget.current.x;
+    const glanceY = pointerIdle || reducedMotion ? (reducedMotion ? 0 : idleWanderY) : pointerTarget.current.y;
     const idleYaw = reducedMotion ? 0 : Math.sin(elapsed * 0.32) * 0.025;
     const idlePitch = reducedMotion ? 0 : Math.sin(elapsed * 0.41) * 0.012;
 
-    head.rotation.y = THREE.MathUtils.damp(head.rotation.y, cursorX * HEAD_YAW + idleYaw, 4, delta);
-    head.rotation.x = THREE.MathUtils.damp(head.rotation.x, -cursorY * HEAD_PITCH + idlePitch, 4, delta);
-    head.rotation.z = THREE.MathUtils.damp(head.rotation.z, -cursorX * 0.025, 4.5, delta);
+    head.rotation.y = THREE.MathUtils.damp(head.rotation.y, glanceX * HEAD_YAW + idleYaw, 4, delta);
+    head.rotation.x = THREE.MathUtils.damp(head.rotation.x, -glanceY * HEAD_PITCH + idlePitch, 4, delta);
+    head.rotation.z = THREE.MathUtils.damp(head.rotation.z, -glanceX * 0.025, 4.5, delta);
     root.position.y = reducedMotion ? 0 : Math.sin(elapsed * 0.86) * 0.035;
-    root.rotation.y = THREE.MathUtils.damp(root.rotation.y, -cursorX * 0.035, 2.6, delta);
+    root.rotation.y = THREE.MathUtils.damp(root.rotation.y, -glanceX * 0.035, 2.6, delta);
     root.rotation.z = THREE.MathUtils.damp(
       root.rotation.z,
-      reducedMotion ? 0 : Math.sin(elapsed * 0.55) * 0.008 + cursorX * 0.012,
+      reducedMotion ? 0 : Math.sin(elapsed * 0.55) * 0.008 + glanceX * 0.012,
       2.6,
       delta,
     );
@@ -289,11 +298,17 @@ function RobotScene({
 
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2.86, 0]} receiveShadow>
         <circleGeometry args={[2.35, 72]} />
-        <meshStandardMaterial color="#05070d" roughness={0.68} metalness={0.15} transparent opacity={0.78} />
+        <meshStandardMaterial
+          color={lightTheme ? "#d3d8e2" : "#05070d"}
+          roughness={lightTheme ? 0.85 : 0.68}
+          metalness={0.15}
+          transparent
+          opacity={lightTheme ? 0.55 : 0.78}
+        />
       </mesh>
 
       <ambientLight color="#a9c8ff" intensity={0.42} />
-      <hemisphereLight args={["#889eff", "#03040a", 1.05]} />
+      <hemisphereLight args={["#889eff", lightTheme ? "#eef1f6" : "#03040a", 1.05]} />
       <directionalLight color="#fff0e4" intensity={4.3} position={[-4.5, 6, 5]} castShadow />
       <directionalLight color="#526cff" intensity={3.6} position={[5, 2.8, -4]} />
       <pointLight color="#B497CF" intensity={22} distance={10} decay={2} position={[3.4, 1.2, 2.2]} />
@@ -320,6 +335,17 @@ export function HeroRobot({ readyEventName = "hero-scene-ready" }: { readyEventN
   const [lowEnd, setLowEnd] = useState(false);
   const [waveSignal, setWaveSignal] = useState(0);
   const [touchTarget, setTouchTarget] = useState<{ x: number; y: number } | null>(null);
+  const [hovering, setHovering] = useState(false);
+  const [lightTheme, setLightTheme] = useState(false);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const update = () => setLightTheme(root.dataset.theme === "light");
+    update();
+    const observer = new MutationObserver(update);
+    observer.observe(root, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const device = navigator as Navigator & { deviceMemory?: number };
@@ -348,11 +374,13 @@ export function HeroRobot({ readyEventName = "hero-scene-ready" }: { readyEventN
   return (
     <div
       ref={containerRef}
-      className="robot-3d-canvas"
+      className={`robot-3d-canvas${hovering ? " is-hover" : ""}${waveSignal > 0 ? " is-waving" : ""}`}
       role="button"
       tabIndex={0}
       aria-label="A full-body glossy humanoid robot. Click or tap to make it wave; its head gently follows your pointer. Drag on touch devices to move its head."
       onClick={triggerWave}
+      onPointerEnter={() => setHovering(true)}
+      onPointerLeave={() => setHovering(false)}
       onPointerDown={(event) => {
         if (event.pointerType !== "mouse") {
           updateTouchTarget(event);
@@ -370,6 +398,11 @@ export function HeroRobot({ readyEventName = "hero-scene-ready" }: { readyEventN
         }
       }}
     >
+      <span className="robot-stage__sparks" aria-hidden="true">
+        {[...Array(8)].map((_, index) => (
+          <i key={index} style={{ ["--spark-angle" as string]: `${index * 45}deg` }} />
+        ))}
+      </span>
       <Canvas
         camera={{ position: [0, -0.22, 9.4], fov: 38, near: 0.1, far: 100 }}
         dpr={[1, lowEnd ? 1.35 : 2]}
@@ -385,7 +418,7 @@ export function HeroRobot({ readyEventName = "hero-scene-ready" }: { readyEventN
         }}
         performance={{ min: 0.55 }}
       >
-        <RobotScene reducedMotion={reducedMotion} lowEnd={lowEnd} waveSignal={waveSignal} touchTarget={touchTarget} />
+        <RobotScene reducedMotion={reducedMotion} lowEnd={lowEnd} waveSignal={waveSignal} touchTarget={touchTarget} lightTheme={lightTheme} />
       </Canvas>
     </div>
   );

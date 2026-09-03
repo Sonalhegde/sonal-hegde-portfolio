@@ -1,21 +1,15 @@
 "use client";
 
 import type { Application, SPEObject } from "@splinetool/runtime";
-import { Component, Suspense, lazy, useCallback, useEffect, useRef, type ReactNode } from "react";
+import { Component, Suspense, lazy, useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+
+import { RobotLoader } from "@/components/effects/robot-loader";
 
 const Spline = lazy(() => import("@splinetool/react-spline"));
 
 interface SplineSceneProps {
   scene: string;
   className?: string;
-}
-
-function SceneLoader() {
-  return (
-    <div className="flex h-full w-full items-center justify-center" aria-hidden="true">
-      <span className="loader" />
-    </div>
-  );
 }
 
 function SceneUnavailable() {
@@ -288,11 +282,30 @@ function InteractiveSpline({ scene, className }: SplineSceneProps) {
 }
 
 export function SplineScene({ scene, className }: SplineSceneProps) {
+  const [interacting, setInteracting] = useState(false);
+
+  // Hover/click feedback on the stage wrapper: the CSS glow intensifies and a
+  // spark burst fires on click while the Spline runtime handles the 3D side.
   return (
-    <SplineErrorBoundary scene={scene}>
-      <Suspense fallback={<SceneLoader />}>
-        <InteractiveSpline scene={scene} className={className} />
-      </Suspense>
-    </SplineErrorBoundary>
+    <div
+      className={`robot-stage${interacting ? " is-interacting" : ""}`}
+      onPointerEnter={() => setInteracting(true)}
+      onPointerLeave={() => setInteracting(false)}
+      onPointerDown={() => {
+        setInteracting(true);
+        window.setTimeout(() => setInteracting(false), 900);
+      }}
+    >
+      <SplineErrorBoundary scene={scene}>
+        <Suspense fallback={<RobotLoader />}>
+          <InteractiveSpline scene={scene} className={className} />
+        </Suspense>
+      </SplineErrorBoundary>
+      <span className="robot-stage__sparks" aria-hidden="true">
+        {[...Array(8)].map((_, index) => (
+          <i key={index} style={{ ["--spark-angle" as string]: `${index * 45}deg` }} />
+        ))}
+      </span>
+    </div>
   );
 }
