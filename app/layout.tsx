@@ -49,13 +49,17 @@ export function generateMetadata(): Metadata {
 
 export const viewport: Viewport = {
   themeColor: "#07080c",
-  colorScheme: "dark",
+  colorScheme: "dark light",
 };
+
+const THEME_BOOTSTRAP = `(function(){try{var t=localStorage.getItem("theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";}document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme="dark";}})();`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" data-site-base-path={process.env.NEXT_PUBLIC_BASE_PATH ?? ""}>
+    <html lang="en" data-site-base-path={process.env.NEXT_PUBLIC_BASE_PATH ?? ""} data-theme="dark" suppressHydrationWarning>
       <head>
+        {/* Applies the persisted (or OS-preferred) theme before first paint. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }} />
         <meta name="referrer" content="strict-origin-when-cross-origin" />
         <meta
           httpEquiv="Content-Security-Policy"

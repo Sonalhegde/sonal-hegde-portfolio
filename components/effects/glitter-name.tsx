@@ -76,7 +76,7 @@ export function GlitterName() {
             {!reducedMotion && landed && NAME[index] !== " " && SPARKS.slice(0, 3 + (index % 2)).map((spark, sparkIndex) => (
               <motion.i
                 key={`${index}-${sparkIndex}`}
-                className="pointer-events-none absolute left-1/2 top-1/2 not-italic text-[9px] text-[#c3f4ff] drop-shadow-[0_0_7px_#B497CF]"
+                className="pointer-events-none absolute left-1/2 top-1/2 not-italic text-[9px] text-[var(--accent-highlight)] drop-shadow-[0_0_7px_#B497CF]"
                 initial={{ opacity: 0, x: 0, y: 0, scale: 0 }}
                 animate={{ opacity: [0, 1, 0], x: [0, spark.x], y: [0, spark.y], scale: [0, 1, 0.2] }}
                 transition={{ duration: 0.5, delay: spark.delay, ease: "easeOut" }}

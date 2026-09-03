@@ -81,36 +81,36 @@ export function SiteAssistant() {
             exit={{ opacity: 0, y: reducedMotion ? 0 : 12, scale: reducedMotion ? 1 : 0.98 }}
             transition={{ duration: reducedMotion ? 0.12 : 0.22, ease: [0.22, 1, 0.36, 1] }}
           >
-            <header className="flex items-start justify-between border-b border-white/10 p-4">
+            <header className="flex items-start justify-between border-b border-[var(--card-border)] p-4">
               <div className="flex gap-3">
-                <span className="flex size-10 items-center justify-center rounded-full border border-[#B497CF]/30 bg-[#B497CF]/10 text-[#c3f4ff]"><Bot size={18} aria-hidden="true" /></span>
+                <span className="flex size-10 items-center justify-center rounded-full border border-[var(--accent-soft-strong)] bg-[var(--accent-soft)] text-[var(--accent-highlight)]"><Bot size={18} aria-hidden="true" /></span>
                 <div>
-                  <h2 id="assistant-title" className="geist-pixel-heading text-sm tracking-[0.08em] text-white">Portfolio assistant</h2>
-                  <p className="mt-1 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.13em] text-neutral-500"><span className="status-dot" /> Visitor FAQ · portfolio scoped</p>
+                  <h2 id="assistant-title" className="geist-pixel-heading text-sm tracking-[0.08em] text-[var(--text-primary)]">Portfolio assistant</h2>
+                  <p className="mt-1 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.13em] text-[var(--text-muted)]"><span className="status-dot" /> Visitor FAQ · portfolio scoped</p>
                 </div>
               </div>
-              <button type="button" onClick={() => setOpen(false)} className="flex size-11 items-center justify-center rounded-full text-neutral-400 hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B497CF]" aria-label="Close portfolio assistant"><X size={18} /></button>
+              <button type="button" onClick={() => setOpen(false)} className="flex size-11 items-center justify-center rounded-full text-[var(--text-muted)] hover:bg-[var(--chip-bg)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-secondary)]" aria-label="Close portfolio assistant"><X size={18} /></button>
             </header>
 
             <div ref={transcriptRef} className="assistant-transcript" aria-live="polite">
               {messages.map((message, index) => (
                 <div key={`${message.role}-${index}`} className={`assistant-message ${message.role}`}>{message.content}</div>
               ))}
-              {busy && <div className="assistant-message assistant flex items-center gap-2"><Sparkles size={13} className="animate-pulse text-[#c3f4ff]" /> Reading the portfolio…</div>}
+              {busy && <div className="assistant-message assistant flex items-center gap-2"><Sparkles size={13} className="animate-pulse text-[var(--accent-highlight)]" /> Reading the portfolio…</div>}
             </div>
 
             {messages.length === 1 && (
               <div className="flex flex-wrap gap-2 px-4 pb-3">
                 {suggestions.map((suggestion) => (
-                  <button key={suggestion} type="button" onClick={() => void ask(suggestion)} className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-2 text-left text-[10px] leading-4 text-neutral-400 hover:border-[#B497CF]/35 hover:text-neutral-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B497CF]">{suggestion}</button>
+                  <button key={suggestion} type="button" onClick={() => void ask(suggestion)} className="rounded-full border border-[var(--card-border)] bg-[var(--chip-bg)] px-3 py-2 text-left text-[10px] leading-4 text-[var(--text-muted)] hover:border-[var(--accent-soft-strong)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-secondary)]">{suggestion}</button>
                 ))}
               </div>
             )}
 
-            <form onSubmit={submit} className="flex gap-2 border-t border-white/10 p-3">
+            <form onSubmit={submit} className="flex gap-2 border-t border-[var(--card-border)] p-3">
               <label htmlFor="portfolio-question" className="sr-only">Ask about Sonal’s portfolio</label>
-              <input id="portfolio-question" ref={inputRef} value={input} onChange={(event) => setInput(event.target.value)} maxLength={600} placeholder="Ask about Sonal’s work…" className="min-h-11 min-w-0 flex-1 rounded-full border border-white/10 bg-black/35 px-4 text-sm text-white outline-none placeholder:text-neutral-600 focus:border-[#B497CF]/55 focus:ring-2 focus:ring-[#B497CF]/25" />
-              <button type="submit" disabled={busy || !input.trim()} className="flex size-11 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/[0.09] text-[#c3f4ff] disabled:cursor-not-allowed disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B497CF]" aria-label="Send question"><CornerDownLeft size={17} /></button>
+              <input id="portfolio-question" ref={inputRef} value={input} onChange={(event) => setInput(event.target.value)} maxLength={600} placeholder="Ask about Sonal’s work…" className="min-h-11 min-w-0 flex-1 rounded-full border border-[var(--card-border)] bg-[var(--chip-bg-strong)] px-4 text-sm text-[var(--text-primary)] outline-none placeholder:text-[var(--text-faint)] focus:border-[var(--accent-soft-strong)] focus:ring-2 focus:ring-[#B497CF]/25" />
+              <button type="submit" disabled={busy || !input.trim()} className="flex size-11 shrink-0 items-center justify-center rounded-full border border-[var(--card-border)] bg-[var(--chip-bg)] text-[var(--accent-highlight)] disabled:cursor-not-allowed disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-secondary)]" aria-label="Send question"><CornerDownLeft size={17} /></button>
             </form>
           </motion.aside>
         )}

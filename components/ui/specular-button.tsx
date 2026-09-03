@@ -31,7 +31,7 @@ export function SpecularButton({ children, icon, className, ...props }: Specular
       onPointerUp={() => setPressed(false)}
       onPointerLeave={() => setPressed(false)}
       className={cn(
-        "specular-button relative inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium text-neutral-50 transition-shadow duration-200 hover:shadow-[0_0_0_1px_rgba(195,244,255,.3),0_14px_36px_-10px_rgba(34,211,238,.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c3f4ff] focus-visible:ring-offset-2 focus-visible:ring-offset-black active:duration-75",
+        "specular-button relative inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-4 text-sm font-medium text-neutral-50 transition-shadow duration-200 hover:shadow-[0_0_0_1px_rgba(195,244,255,.3),0_14px_36px_-10px_rgba(34,211,238,.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c3f4ff] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-base)] active:duration-75",
         pressed && "glass-pill-pressed",
         className,
       )}

@@ -4,6 +4,8 @@ import { feature } from "topojson-client";
 import type { GeometryObject, Topology } from "topojson-specification";
 import worldTopology from "world-atlas/land-110m.json";
 
+import { useDeviceMode } from "@/components/effects/use-device-mode";
+
 type VisitorLocation = {
   city: string;
   country: string;
@@ -110,13 +112,35 @@ async function fetchVisitorSummary(signal: AbortSignal) {
   return summary;
 }
 
+function readMapPalette() {
+  const style = getComputedStyle(document.documentElement);
+  const read = (name: string, fallback: string) => style.getPropertyValue(name).trim() || fallback;
+  return {
+    land: read("--map-land", "rgba(195,244,255,.13)"),
+    landStroke: read("--map-land-stroke", "rgba(195,244,255,.46)"),
+    graticule: read("--map-graticule", "rgba(30,111,255,.16)"),
+    sphereFill: read("--map-sphere-fill", "rgba(20,32,54,.9)"),
+    sphereFill2: read("--map-sphere-fill-2", "rgba(6,10,18,.88)"),
+    sphereFill3: read("--map-sphere-fill-3", "rgba(2,4,8,.94)"),
+    label: read("--map-label", "rgba(245,246,250,.96)"),
+    marker: read("--map-marker", "rgba(195,244,255,1)"),
+    visitor: read("--map-visitor", "rgba(52,211,153,1)"),
+  };
+}
+
 export function ResearchMap() {
   const shellRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const locationsRef = useRef<VisitorLocation[]>([]);
   const clockRef = useRef<HTMLSpanElement>(null);
+  const deviceMode = useDeviceMode();
+  const liteModeRef = useRef(deviceMode === "lite");
   const [summary, setSummary] = useState<VisitorSummary>(SUMMARY_LOADING);
   const currentVisitor = summary.locations[0] ?? null;
+
+  useEffect(() => {
+    liteModeRef.current = deviceMode === "lite";
+  }, [deviceMode]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -165,6 +189,14 @@ export function ResearchMap() {
     const path = d3.geoPath(projection, context);
     const graticule = d3.geoGraticule10();
 
+    // Canvas palette follows the active theme via CSS custom properties.
+    const themePaletteRef = { current: readMapPalette() };
+    const themeObserver = new MutationObserver(() => {
+      themePaletteRef.current = readMapPalette();
+      draw();
+    });
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
     let width = 900;
     let height = 430;
     let scale = 1;
@@ -201,7 +233,7 @@ export function ResearchMap() {
       context.fill();
       context.textAlign = align;
       context.font = "600 10px ui-monospace, SFMono-Regular, Consolas, monospace";
-      context.fillStyle = "rgba(245,246,250,.96)";
+      context.fillStyle = themePaletteRef.current.label;
       context.fillText(label, point[0] + (align === "right" ? -12 : 12), point[1] - 8);
       context.globalAlpha = 1;
     };
@@ -219,10 +251,11 @@ export function ResearchMap() {
       context.fillRect(0, 0, width, height);
 
       context.beginPath(); path({ type: "Sphere" });
+      const palette = themePaletteRef.current;
       const sphereFill = context.createRadialGradient(cx - scale * 0.32, cy - scale * 0.32, scale * 0.1, cx, cy, scale * 1.05);
-      sphereFill.addColorStop(0, "rgba(20,32,54,.9)");
-      sphereFill.addColorStop(0.6, "rgba(6,10,18,.88)");
-      sphereFill.addColorStop(1, "rgba(2,4,8,.94)");
+      sphereFill.addColorStop(0, palette.sphereFill);
+      sphereFill.addColorStop(0.6, palette.sphereFill2);
+      sphereFill.addColorStop(1, palette.sphereFill3);
       context.fillStyle = sphereFill;
       context.fill();
       context.strokeStyle = "rgba(195,244,255,.28)";
@@ -232,10 +265,10 @@ export function ResearchMap() {
       context.save();
       context.beginPath(); path({ type: "Sphere" }); context.clip();
       context.beginPath(); path(graticule);
-      context.strokeStyle = "rgba(30,111,255,.16)"; context.lineWidth = 0.6; context.stroke();
+      context.strokeStyle = palette.graticule; context.lineWidth = 0.6; context.stroke();
       context.beginPath(); path(land);
-      context.fillStyle = "rgba(195,244,255,.13)"; context.fill();
-      context.strokeStyle = "rgba(195,244,255,.46)"; context.lineWidth = 0.8; context.stroke();
+      context.fillStyle = palette.land; context.fill();
+      context.strokeStyle = palette.landStroke; context.lineWidth = 0.8; context.stroke();
       context.restore();
 
       context.beginPath(); path({ type: "Sphere" });
@@ -246,9 +279,9 @@ export function ResearchMap() {
       context.lineWidth = 3;
       context.stroke();
 
-      marker(BASE_CITY, BASE_LABEL, "rgba(195,244,255,1)", now, "left");
+      marker(BASE_CITY, BASE_LABEL, themePaletteRef.current.marker, now, "left");
       locationsRef.current.forEach((location, index) => {
-        marker([location.longitude, location.latitude], `${location.city}, ${location.country}`, "rgba(52,211,153,1)", now + index * 140, "right");
+        marker([location.longitude, location.latitude], `${location.city}, ${location.country}`, themePaletteRef.current.visitor, now + index * 140, "right");
       });
     };
 
@@ -285,12 +318,19 @@ export function ResearchMap() {
       }
       if (now - lastFrame >= 1000 / 30) {
         lastFrame = now;
-        if (autoRotate && !reducedMotion.matches && !drag.active) rotation.lambda += 0.045;
+        // Lite devices render a static globe: no auto-rotation loop, and the
+        // render loop parks itself whenever nothing is actively dragging.
+        const rotating = autoRotate && !reducedMotion.matches && !liteModeRef.current && !drag.active;
+        if (rotating) rotation.lambda += 0.045;
         else if (drag.active) {
           rotation.lambda += drag.velocity;
           drag.velocity *= 0.92;
         }
         draw(now);
+        if (!rotating && !drag.active) {
+          frame = 0;
+          return;
+        }
       }
       frame = requestAnimationFrame(animate);
     };
@@ -322,7 +362,9 @@ export function ResearchMap() {
     const onPointerUp = () => {
       drag.active = false;
       window.clearTimeout(resumeTimer);
-      resumeTimer = window.setTimeout(() => { autoRotate = true; }, 2600);
+      resumeTimer = window.setTimeout(() => {
+        if (!liteModeRef.current) autoRotate = true;
+      }, 2600);
     };
 
     canvas.addEventListener("pointerdown", onPointerDown);
@@ -346,6 +388,7 @@ export function ResearchMap() {
       window.clearTimeout(resumeTimer);
       resize.disconnect();
       intersection.disconnect();
+      themeObserver.disconnect();
       document.removeEventListener("visibilitychange", onVisibilityChange);
       canvas.removeEventListener("pointerdown", onPointerDown);
       canvas.removeEventListener("pointermove", onPointerMove);
@@ -365,7 +408,7 @@ export function ResearchMap() {
       />
       <div className="pointer-events-none absolute inset-x-4 top-4 flex flex-wrap items-center justify-between gap-2 font-mono text-[9px] uppercase tracking-[0.14em] text-neutral-500 sm:text-[10px]">
         <span>Drag to rotate</span>
-        <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-2 py-1 text-emerald-200">
+        <span className="visitor-chip rounded-full px-2 py-1">
           {summary.status === "loading" && "Visitor stats loading…"}
           {summary.status === "unavailable" && "Visitor stats unavailable"}
           {summary.status === "ready" && (summary.totalVisitors > 0
