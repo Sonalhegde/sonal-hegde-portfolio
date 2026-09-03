@@ -13,84 +13,101 @@ type VisitorLocation = {
 };
 
 type VisitorSummary = {
+  status: "loading" | "ready" | "unavailable";
   locations: VisitorLocation[];
   totalVisitors: number;
   cityCount: number;
-  mode: "database" | "fallback";
 };
 
-type GeoPayload = {
-  success?: boolean;
-  city?: string;
-  country?: string;
-  latitude?: number;
-  longitude?: number;
-  timezone?: string | { id?: string };
-};
+const SUMMARY_LOADING: VisitorSummary = { status: "loading", locations: [], totalVisitors: 0, cityCount: 0 };
+const SUMMARY_UNAVAILABLE: VisitorSummary = { status: "unavailable", locations: [], totalVisitors: 0, cityCount: 0 };
+const SESSION_STORAGE_KEY = "portfolio-visitor-session";
 
 // City-pointer view: label the portfolio base at city granularity (Mangalore),
 // never the finer-grained town level.
 const BASE_CITY: [number, number] = [74.856, 12.9141];
 const BASE_LABEL = "Mangalore, India";
-const STATIC_SUMMARY: VisitorSummary = { locations: [], totalVisitors: 1_284, cityCount: 42, mode: "fallback" };
 const topology = worldTopology as unknown as Topology;
 const land = feature(topology, topology.objects.land as GeometryObject);
 
-function parseLocation(payload: GeoPayload): VisitorLocation | null {
-  const timezone = typeof payload.timezone === "string" ? payload.timezone : payload.timezone?.id;
-  if (!payload.city || !payload.country || !timezone || !Number.isFinite(payload.latitude) || !Number.isFinite(payload.longitude)) return null;
+// Stable per-browser session id so the server can dedupe page reloads. When
+// storage is unavailable the server falls back to IP+day dedupe.
+function visitorSessionId() {
+  try {
+    const existing = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (existing) return existing;
+    const id = crypto.randomUUID();
+    localStorage.setItem(SESSION_STORAGE_KEY, id);
+    return id;
+  } catch {
+    return "";
+  }
+}
+
+// The static (GitHub Pages) build has no API routes; when a server deployment
+// exists elsewhere it can be pointed at via NEXT_PUBLIC_VISITORS_API_URL.
+function visitorsApiBase() {
+  const configured = process.env.NEXT_PUBLIC_VISITORS_API_URL?.trim().replace(/\/+$/, "");
+  return configured || "";
+}
+
+function parseSummary(payload: unknown): VisitorSummary | null {
+  if (typeof payload !== "object" || payload === null) return null;
+  const data = payload as Record<string, unknown>;
+  if (data.available !== true || !Array.isArray(data.locations)) return null;
+  const totalVisitors = Number(data.totalVisitors);
+  const cityCount = Number(data.cityCount);
+  if (!Number.isInteger(totalVisitors) || totalVisitors < 0 || !Number.isInteger(cityCount) || cityCount < 0) return null;
+
+  const locations: VisitorLocation[] = [];
+  const seen = new Set<string>();
+  for (const entry of data.locations) {
+    if (typeof entry !== "object" || entry === null) continue;
+    const location = entry as Record<string, unknown>;
+    const city = typeof location.city === "string" ? location.city.trim().slice(0, 80) : "";
+    const country = typeof location.country === "string" ? location.country.trim().slice(0, 80) : "";
+    const timezone = typeof location.timezone === "string" ? location.timezone.trim().slice(0, 80) : "";
+    const latitude = Number(location.latitude);
+    const longitude = Number(location.longitude);
+    if (!city || !country || !timezone || !Number.isFinite(latitude) || !Number.isFinite(longitude)) continue;
+    const key = `${city.toLowerCase()}|${country.toLowerCase()}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    locations.push({ city, country, latitude, longitude, timezone });
+    if (locations.length >= 24) break;
+  }
+
   return {
-    city: payload.city,
-    country: payload.country,
-    latitude: payload.latitude as number,
-    longitude: payload.longitude as number,
-    timezone,
+    status: "ready",
+    locations,
+    totalVisitors,
+    cityCount,
   };
 }
 
-async function fetchVisitorLocation(signal: AbortSignal) {
-  for (const url of ["https://ipwho.is/", "https://ipapi.co/json/"]) {
-    try {
-      const response = await fetch(url, { signal, cache: "no-store" });
-      if (!response.ok) continue;
-      const location = parseLocation((await response.json()) as GeoPayload);
-      if (location) return location;
-    } catch (error) {
-      if (signal.aborted) throw error;
-    }
-  }
-  return null;
-}
-
-async function fetchVisitorSummary(signal: AbortSignal, location: VisitorLocation | null) {
-  if (location) {
-    try {
-      await fetch("/api/visitors", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(location),
-        signal,
-        keepalive: true,
-      });
-    } catch (error) {
-      if (signal.aborted) throw error;
-    }
-  }
-
+async function fetchVisitorSummary(signal: AbortSignal) {
+  const base = visitorsApiBase();
+  // Record the visit (server dedupes by session + IP + day), then read the real
+  // totals. No client-side geolocation, no fabricated numbers: if the API is
+  // unreachable the UI shows an explicit unavailable state.
   try {
-    const response = await fetch("/api/visitors", { signal, cache: "no-store" });
-    if (!response.ok) return { ...STATIC_SUMMARY, locations: location ? [location] : [] };
-    const payload = await response.json() as Partial<VisitorSummary>;
-    return {
-      locations: Array.isArray(payload.locations) ? payload.locations : location ? [location] : [],
-      totalVisitors: Number.isFinite(payload.totalVisitors) ? Number(payload.totalVisitors) : STATIC_SUMMARY.totalVisitors,
-      cityCount: Number.isFinite(payload.cityCount) ? Number(payload.cityCount) : STATIC_SUMMARY.cityCount,
-      mode: payload.mode === "database" ? "database" : "fallback",
-    } satisfies VisitorSummary;
+    await fetch(`${base}/api/visitors`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId: visitorSessionId() }),
+      signal,
+      keepalive: true,
+    });
   } catch (error) {
     if (signal.aborted) throw error;
-    return { ...STATIC_SUMMARY, locations: location ? [location] : [] };
   }
+
+  const response = await fetch(`${base}/api/visitors`, { signal, cache: "no-store" });
+  const contentType = response.headers.get("content-type") ?? "";
+  if (!response.ok || !contentType.includes("application/json")) throw new Error("Visitor summary unavailable");
+  const summary = parseSummary(await response.json());
+  if (!summary) throw new Error("Visitor summary unavailable");
+  return summary;
 }
 
 export function ResearchMap() {
@@ -98,19 +115,19 @@ export function ResearchMap() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const locationsRef = useRef<VisitorLocation[]>([]);
   const clockRef = useRef<HTMLSpanElement>(null);
-  const [summary, setSummary] = useState<VisitorSummary>(STATIC_SUMMARY);
+  const [summary, setSummary] = useState<VisitorSummary>(SUMMARY_LOADING);
   const currentVisitor = summary.locations[0] ?? null;
 
   useEffect(() => {
     const controller = new AbortController();
-    fetchVisitorLocation(controller.signal)
-      .then((location) => fetchVisitorSummary(controller.signal, location))
+    fetchVisitorSummary(controller.signal)
       .then((nextSummary) => {
         if (controller.signal.aborted) return;
-        locationsRef.current = nextSummary.locations;
         setSummary(nextSummary);
       })
-      .catch(() => undefined);
+      .catch(() => {
+        if (!controller.signal.aborted) setSummary(SUMMARY_UNAVAILABLE);
+      });
     return () => controller.abort();
   }, []);
 
@@ -348,11 +365,17 @@ export function ResearchMap() {
       />
       <div className="pointer-events-none absolute inset-x-4 top-4 flex flex-wrap items-center justify-between gap-2 font-mono text-[9px] uppercase tracking-[0.14em] text-neutral-500 sm:text-[10px]">
         <span>Drag to rotate</span>
-        <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-2 py-1 text-emerald-200">{summary.totalVisitors.toLocaleString()} visitors · {summary.cityCount} cities</span>
+        <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-2 py-1 text-emerald-200">
+          {summary.status === "loading" && "Visitor stats loading…"}
+          {summary.status === "unavailable" && "Visitor stats unavailable"}
+          {summary.status === "ready" && (summary.totalVisitors > 0
+            ? `${summary.totalVisitors.toLocaleString()} visits · ${summary.cityCount} cities`
+            : "No visitor data yet")}
+        </span>
       </div>
       <div className="pointer-events-none absolute inset-x-4 bottom-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/55 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.1em] text-neutral-400 backdrop-blur-md">
         <span><span className="mr-2 inline-block size-2 rounded-full bg-[#c3f4ff] shadow-[0_0_10px_#c3f4ff]" />Mangalore, India</span>
-        {currentVisitor ? <span><span className="mr-2 inline-block size-2 animate-pulse rounded-full bg-emerald-400" />{currentVisitor.city}, {currentVisitor.country} · <span ref={clockRef}>--:--:--</span> {currentVisitor.timezone}</span> : <span>Visitor signal unavailable</span>}
+        {currentVisitor ? <span><span className="mr-2 inline-block size-2 animate-pulse rounded-full bg-emerald-400" />{currentVisitor.city}, {currentVisitor.country} · <span ref={clockRef}>--:--:--</span> {currentVisitor.timezone}</span> : summary.status === "ready" ? <span>No visitor data yet</span> : summary.status === "loading" ? <span>Checking visitor signal…</span> : <span>Visitor signal unavailable</span>}
       </div>
       <figcaption className="sr-only">Approximate visitor locations are derived from IP data without requesting precise device location or storing personal information.</figcaption>
     </figure>

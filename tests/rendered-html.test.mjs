@@ -27,7 +27,7 @@ test("server-renders Sonal Hegde's portfolio", async () => {
   assert.match(html, /class="loader"/);
   assert.match(html, /connect-src[^\"]*https:\/\/prod\.spline\.design/);
   assert.match(html, />Mangalore, India</);
-  assert.match(html, /connect-src[^\"]*https:\/\/ipwho\.is[^\"]*https:\/\/ipapi\.co/);
+  assert.doesNotMatch(html, /ipwho\.is|ipapi\.co/);
   assert.match(html, />CV</);
   assert.match(html, /href="\/cv"/);
   assert.match(html, /href="[^"]*\/favicon\.ico"/);
