@@ -20,9 +20,12 @@ function emit() {
 }
 
 // One shared capability snapshot for the whole app: UA / UA-CH mobile signal,
-// touch-pointer capability, low memory/CPU, and the OS reduced-motion setting.
-// Viewport width is deliberately NOT a signal — a narrow desktop window is not
-// a phone. Reduced motion drops to lite on every device.
+// touch-pointer capability, and the OS reduced-motion setting. Only genuinely
+// low-end hardware (≤2 GB reported RAM / ≤2 cores) is flagged by heuristics —
+// common 4-core laptops must keep the full experience. Viewport width is
+// deliberately NOT a signal — a narrow desktop window is not a phone.
+// Reduced motion drops to lite on every device. The lite mode only trims
+// ambient backdrop/map animation; the robot follows its own media-query split.
 function computeDeviceMode(): DeviceMode {
   if (typeof window === "undefined") return "full";
   try {
@@ -42,8 +45,8 @@ function computeDeviceMode(): DeviceMode {
   if (/Android|iPhone|iPod|IEMobile|Opera Mini/i.test(navigator.userAgent)) return "lite";
   if (window.matchMedia("(pointer: coarse)").matches || window.matchMedia("(hover: none)").matches) return "lite";
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return "lite";
-  if (navigatorWithSignals.deviceMemory !== undefined && navigatorWithSignals.deviceMemory <= 4) return "lite";
-  if (navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 4) return "lite";
+  if (navigatorWithSignals.deviceMemory !== undefined && navigatorWithSignals.deviceMemory <= 2) return "lite";
+  if (navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 2) return "lite";
   return "full";
 }
 

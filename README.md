@@ -10,10 +10,10 @@ Every push to `main` builds and publishes the site to GitHub Pages automatically
 
 ## Website highlights
 
-- Interactive robot mascot: the Spline scene (desktop) and a lightweight Three.js robot track the cursor with damped easing, idle into a wandering glance after a few seconds, wave with a spark burst on click/tap, and stay keyboard-accessible
-- Dedicated robot loading animation (silhouette shimmer + build rings) with graceful fallbacks — Spline failure swaps to the Three.js robot, WebGL failure swaps to a CSS/SVG robot
+- Interactive robot mascot: the Spline scene (desktop) and the Three.js robot (touch/small viewports) track the cursor with damped easing, idle into a wandering glance after a few seconds, wave with a spark burst on click/tap, and stay keyboard-accessible
+- Dedicated robot loading animation (silhouette shimmer + build rings) while the lazy 3D chunks arrive; Spline load failure swaps automatically to the Three.js robot
 - Dual light/dark theme derived from the robot's own palette, persisted in `localStorage`, applied before first paint (no theme flash), with WCAG-AA-retuned accents on white
-- Dedicated lite experience for phones and low-capability devices: capability detection (UA, pointer coarseness, memory/CPU cores, reduced motion, runtime frame budget) swaps in a CSS/SVG robot, a static backdrop frame, and a park-when-static globe — the ~2.9 MB of WebGL chunks never download on the lite path (694 KB JS total, measured)
+- Capability-aware animation budget for phones: touch devices and reduced-motion users get static (single-frame) backdrop and globe rendering — viewports are never treated as a device signal, so a narrow desktop window keeps the full experience
 - Animated Canvas2D dither backdrop that pauses while scrolling and reuses offscreen buffers, keeping nav clicks and touch scrolling responsive
 - Privacy-conscious globe centered on Mangalore, India, with city+country-granularity visitor markers
 - Visitor counter backed by a real D1 store with session+IP+day dedupe and server-side geolocation — numbers are never fabricated; static deployments show an explicit "unavailable" state
@@ -99,11 +99,10 @@ The static mirror uses the assistant's local portfolio index when `/api/chat` is
 
 ## Performance and accessibility
 
-- Device-mode detection branches the whole app (full/lite); reduced motion drops to lite on every device
-- Animated canvases, the Spline scene, and the globe pause off-screen and when the tab is hidden; the globe parks entirely when static
+- Touch devices and `prefers-reduced-motion` users get single-frame static backdrop/globe rendering; the globe also parks its render loop when nothing is animating
+- Animated canvases, the Spline scene, and the globe pause off-screen and when the tab is hidden
 - Canvas device-pixel ratios are capped below 2
-- Heavy Three.js, Spline, and postprocessing code is code-split behind device-mode checks — lite devices never download it
-- Lite devices receive the CSS/SVG robot, a static backdrop frame, and a non-rotating globe
+- The Spline and Three.js robot bundles are lazy-loaded — the Spline scene is never downloaded on touch/small-viewport devices that get the Three.js robot
 - `prefers-reduced-motion` freezes decorative motion
 - The robot is a labelled, keyboard-operable control; decorative overlays are `aria-hidden`
 
