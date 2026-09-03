@@ -57,11 +57,11 @@ const experiences = [
   },
   {
     index: "02",
-    title: "Research Intern — Marine Debris Detection with YOLOv8",
+    title: "Research Intern — Marine Debris Detection with YOLO26",
     organization: <InstitutionBadge icon="🇴🇲">Sultan Qaboos University, Muscat, Oman</InstitutionBadge>,
     icon: <Waves size={18} aria-hidden="true" />,
     bullets: [
-      "Built and trained a YOLOv8 computer-vision pipeline to detect and localize marine debris in drone imagery.",
+      "Built and trained a YOLO26 computer-vision pipeline to detect and localize marine debris in drone imagery.",
       "Curated and annotated a custom floating-debris dataset, using augmentation and transfer learning to exceed 90% detection accuracy.",
       "Integrated detections with a live web dashboard for real-time monitoring.",
     ],
@@ -82,10 +82,10 @@ const projects = [
     description: "Built a portable, low-cost profiling rig with an STM32L476RG master, INA219 sensor, and ESP32-C3 device-under-test on shared I2C. Custom firmware measured voltage, current, power, and cumulative energy across five modes, identifying wireless communication as the dominant cost.",
   },
   {
-    title: "Marine Debris Detection using YOLOv8",
-    tech: ["Python", "OpenCV", "YOLOv8", "PyTorch"],
+    title: "Marine Debris Detection using YOLO26",
+    tech: ["Python", "OpenCV", "YOLO26", "PyTorch"],
     icon: <Waves size={19} aria-hidden="true" />,
-    description: "YOLOv8 real-time marine-debris detection for drone imagery, built from a custom annotated dataset and connected to a live web dashboard.",
+    description: "YOLO26 real-time marine-debris detection for drone imagery, built from a custom annotated dataset and connected to a live web dashboard.",
     related: true,
   },
   {
@@ -118,7 +118,7 @@ const skillGroups = [
   { title: "Programming", items: ["Python", "C++", "Embedded C", "Java", "JavaScript", "MATLAB", "Unix Shell"] },
   { title: "Embedded & Hardware", items: ["ESP32", "STM32", "Arduino", "Raspberry Pi", "FreeRTOS", "UART", "SPI", "I2C", "CAN", "PCB Design"] },
   { title: "Networks & IoT", items: ["MQTT", "CoAP", "HTTP / REST", "BLE", "Wi-Fi", "Zigbee", "ESP-NOW", "AWS IoT Core"] },
-  { title: "AI / ML", items: ["PyTorch", "Hugging Face Transformers", "OpenCV", "YOLOv8", "NLP", "Edge AI"] },
+  { title: "AI / ML", items: ["PyTorch", "Hugging Face Transformers", "OpenCV", "YOLO26", "NLP", "Edge AI"] },
   { title: "Web & Tools", items: ["Three.js", "Anime.js", "WebGL", "Git / GitHub", "Blender"] },
 ];
 
@@ -179,14 +179,14 @@ export function Portfolio() {
               <CardContent className="grid gap-8 p-6 md:grid-cols-[1.35fr_.65fr] md:p-10">
                 <div className="max-w-4xl text-base leading-8 text-neutral-200 md:text-lg md:leading-9">
                   <p>I’m Sonal Hegde, an Electronics and Communication Engineering undergraduate focused on embedded systems and edge AI, based in India. I design and validate end-to-end systems that turn sensor data and camera feeds into reliable, real-time decisions on constrained hardware — from firmware-level drivers and networked sensor nodes to optimized computer-vision pipelines.</p>
-                  <p className="mt-4 text-[#a3a8b8]">My recent work spans applied cyber-physical systems at <InstitutionBadge icon="🇮🇳">National Institute of Technology Karnataka, Surathkal</InstitutionBadge> and edge-deployed marine-debris detection with YOLOv8 through work carried out at <InstitutionBadge icon="🇴🇲">Sultan Qaboos University</InstitutionBadge>. I am also developing a deeper interest in computer networks and in the coordination of distributed systems at scale.</p>
+                  <p className="mt-4 text-[#a3a8b8]">My recent work spans applied cyber-physical systems at <InstitutionBadge icon="🇮🇳">National Institute of Technology Karnataka, Surathkal</InstitutionBadge> and edge-deployed marine-debris detection with YOLO26 through work carried out at <InstitutionBadge icon="🇴🇲">Sultan Qaboos University</InstitutionBadge>. I am also developing a deeper interest in computer networks and in the coordination of distributed systems at scale.</p>
                   <p className="mt-4 text-[#a3a8b8]">I am pursuing a B.Tech in Electronics & Communication Engineering, expected in 2028. I am open to internships and early-career opportunities in embedded engineering, edge AI, cyber-physical systems, IoT, and computer networks, as well as technology consulting and product-development roles where I can translate complex technical problems into robust, scalable products.</p>
                   <div className="mt-7 flex flex-wrap gap-2">{profileKeywords.map((item) => <TechTag key={item}>{item}</TechTag>)}</div>
                 </div>
                 <div className="lab-readout rounded-2xl border border-white/10 bg-black/35 p-5 font-mono text-[11px] uppercase tracking-[0.14em] text-neutral-500">
                   <div className="flex items-center justify-between border-b border-white/10 pb-3"><span>Currently exploring</span><span className="text-[#c3f4ff]">Active</span></div>
                   <div className="mt-5 flex items-center gap-3 rounded-xl border border-[#1e6fff]/30 bg-[#1e6fff]/10 p-4 text-neutral-200"><Network size={17} className="text-[#c3f4ff]" /><span>Computer Networks</span></div>
-                  <dl className="mt-5 grid gap-3"><div className="flex justify-between gap-4"><dt>Programming</dt><dd className="text-right text-neutral-300">Python · C++ · C · Java · JavaScript</dd></div><div className="flex justify-between gap-4"><dt>Problem solving</dt><dd className="text-neutral-300">DSA · OOP</dd></div><div className="flex justify-between gap-4"><dt>Embedded</dt><dd className="text-right text-neutral-300">ESP32 · STM32 · FreeRTOS</dd></div><div className="flex justify-between gap-4"><dt>Networks</dt><dd className="text-right text-neutral-300">MQTT · CoAP · REST · BLE</dd></div><div className="flex justify-between gap-4"><dt>AI / Vision</dt><dd className="text-right text-neutral-300">PyTorch · YOLOv8 · OpenCV</dd></div><div className="flex justify-between gap-4"><dt>Dev tools</dt><dd className="text-right text-neutral-300">Docker · Git · Linux · Three.js</dd></div></dl>
+                  <dl className="mt-5 grid gap-3"><div className="flex justify-between gap-4"><dt>Programming</dt><dd className="text-right text-neutral-300">Python · C++ · C · Java · JavaScript</dd></div><div className="flex justify-between gap-4"><dt>Problem solving</dt><dd className="text-neutral-300">DSA · OOP</dd></div><div className="flex justify-between gap-4"><dt>Embedded</dt><dd className="text-right text-neutral-300">ESP32 · STM32 · FreeRTOS</dd></div><div className="flex justify-between gap-4"><dt>Networks</dt><dd className="text-right text-neutral-300">MQTT · CoAP · REST · BLE</dd></div><div className="flex justify-between gap-4"><dt>AI / Vision</dt><dd className="text-right text-neutral-300">PyTorch · YOLO26 · OpenCV</dd></div><div className="flex justify-between gap-4"><dt>Dev tools</dt><dd className="text-right text-neutral-300">Docker · Git · Linux · Three.js</dd></div></dl>
                 </div>
               </CardContent>
             </Card>
