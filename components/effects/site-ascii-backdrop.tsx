@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { AsciiArtCanvas, HERO_ASCII_PRESET } from "@/components/effects/ascii-art-canvas";
+import { useDeviceMode } from "@/components/effects/use-device-mode";
 import { sitePath } from "@/lib/site-path";
 
 function adaptiveCellSize(width: number) {
@@ -12,6 +13,8 @@ function adaptiveCellSize(width: number) {
 }
 
 export function SiteAsciiBackdrop() {
+  const deviceMode = useDeviceMode();
+  const liteMode = deviceMode === "lite";
   const [cellSize, setCellSize] = useState(14);
   const [conserveResources, setConserveResources] = useState(false);
   const [compactViewport, setCompactViewport] = useState(false);
@@ -47,7 +50,7 @@ export function SiteAsciiBackdrop() {
     () => ({
       ...HERO_ASCII_PRESET,
       renderMode: "dither" as const,
-      cellSize,
+      cellSize: liteMode ? Math.max(18, Math.round(cellSize * 1.4)) : cellSize,
       bgMode: "blurred" as const,
       bgBlur: 12,
       bgOpacity: 90,
@@ -56,8 +59,10 @@ export function SiteAsciiBackdrop() {
       tint: "#7c9cff",
       tintOpacity: 22,
       overlayBlend: "soft-light" as GlobalCompositeOperation,
+      // Lite devices get a single static render of the dither tower — the
+      // identity stays, the continuous repaint loop does not.
+      animated: !conserveResources && !liteMode,
       animStyle: "shimmer" as const,
-      animated: !conserveResources,
       pfx: {
         ...HERO_ASCII_PRESET.pfx,
         vignette: { enabled: true, intensity: 38 },
@@ -68,7 +73,7 @@ export function SiteAsciiBackdrop() {
         halftone: { enabled: false, intensity: 0 },
       },
     }),
-    [cellSize, conserveResources],
+    [cellSize, conserveResources, liteMode],
   );
 
   return (
