@@ -28,7 +28,10 @@ type GeoPayload = {
   timezone?: string | { id?: string };
 };
 
-const INDIA_BASE: [number, number] = [74.992, 13.2143];
+// City-pointer view: label the portfolio base at city granularity (Mangalore),
+// never the finer-grained town level.
+const BASE_CITY: [number, number] = [74.856, 12.9141];
+const BASE_LABEL = "Mangalore, India";
 const STATIC_SUMMARY: VisitorSummary = { locations: [], totalVisitors: 1_284, cityCount: 42, mode: "fallback" };
 const topology = worldTopology as unknown as Topology;
 const land = feature(topology, topology.objects.land as GeometryObject);
@@ -139,7 +142,7 @@ export function ResearchMap() {
     if (!shell || !canvas || !context) return;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const rotation = { lambda: -8, phi: -13 };
+    const rotation = { lambda: -BASE_CITY[0], phi: -BASE_CITY[1] };
     const drag = { active: false, lastX: 0, lastY: 0, velocity: 0 };
     const projection = d3.geoOrthographic().precision(0.4);
     const path = d3.geoPath(projection, context);
@@ -226,9 +229,9 @@ export function ResearchMap() {
       context.lineWidth = 3;
       context.stroke();
 
-      marker(INDIA_BASE, "India · portfolio base", "rgba(195,244,255,1)", now, "left");
+      marker(BASE_CITY, BASE_LABEL, "rgba(195,244,255,1)", now, "left");
       locationsRef.current.forEach((location, index) => {
-        marker([location.longitude, location.latitude], `${location.city} · visitor ${index + 1}`, "rgba(52,211,153,1)", now + index * 140, "right");
+        marker([location.longitude, location.latitude], `${location.city}, ${location.country}`, "rgba(52,211,153,1)", now + index * 140, "right");
       });
     };
 
@@ -341,14 +344,14 @@ export function ResearchMap() {
         ref={canvasRef}
         className="h-full w-full cursor-grab touch-none active:cursor-grabbing"
         role="img"
-        aria-label="Interactive rotating globe showing Sonal's portfolio base and recent approximate visitor locations. Drag to rotate."
+        aria-label="Interactive rotating globe centered on Mangalore, India — Sonal's portfolio base — with recent approximate visitor locations. Drag to rotate."
       />
       <div className="pointer-events-none absolute inset-x-4 top-4 flex flex-wrap items-center justify-between gap-2 font-mono text-[9px] uppercase tracking-[0.14em] text-neutral-500 sm:text-[10px]">
         <span>Drag to rotate</span>
         <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-2 py-1 text-emerald-200">{summary.totalVisitors.toLocaleString()} visitors · {summary.cityCount} cities</span>
       </div>
       <div className="pointer-events-none absolute inset-x-4 bottom-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-white/10 bg-black/55 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.1em] text-neutral-400 backdrop-blur-md">
-        <span><span className="mr-2 inline-block size-2 rounded-full bg-[#c3f4ff] shadow-[0_0_10px_#c3f4ff]" />India</span>
+        <span><span className="mr-2 inline-block size-2 rounded-full bg-[#c3f4ff] shadow-[0_0_10px_#c3f4ff]" />Mangalore, India</span>
         {currentVisitor ? <span><span className="mr-2 inline-block size-2 animate-pulse rounded-full bg-emerald-400" />{currentVisitor.city}, {currentVisitor.country} · <span ref={clockRef}>--:--:--</span> {currentVisitor.timezone}</span> : <span>Visitor signal unavailable</span>}
       </div>
       <figcaption className="sr-only">Approximate visitor locations are derived from IP data without requesting precise device location or storing personal information.</figcaption>
