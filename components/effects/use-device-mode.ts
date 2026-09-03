@@ -30,6 +30,12 @@ function computeDeviceMode(): DeviceMode {
   } catch {
     // Storage unavailable — fall through to live signals.
   }
+  // QA hook: force the lite experience via ?mode=lite for testing on desktop.
+  try {
+    if (new URLSearchParams(window.location.search).get("mode") === "lite") return "lite";
+  } catch {
+    // Ignore malformed URLs.
+  }
 
   const navigatorWithSignals = navigator as NavigatorWithSignals;
   if (navigatorWithSignals.userAgentData?.mobile) return "lite";
