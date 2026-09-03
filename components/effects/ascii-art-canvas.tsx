@@ -898,17 +898,45 @@ export function AsciiArtCanvas({
     };
     media.addEventListener("change", onMotionChange);
 
+    // Offscreen buffer reuse: the per-frame render used to allocate five
+    // full-viewport canvases every frame, which drove heavy GC churn on the
+    // main thread. Buffers are now cached per key and resized on demand.
+    const bufferCache = new Map<string, HTMLCanvasElement>();
+    function buffer(key: string, bufferWidth: number, bufferHeight: number) {
+      let canvasBuffer = bufferCache.get(key);
+      if (!canvasBuffer) {
+        canvasBuffer = canvas2d(bufferWidth, bufferHeight);
+        bufferCache.set(key, canvasBuffer);
+      } else if (canvasBuffer.width !== bufferWidth || canvasBuffer.height !== bufferHeight) {
+        canvasBuffer.width = bufferWidth;
+        canvasBuffer.height = bufferHeight;
+      }
+      return canvasBuffer;
+    }
+
+    // Full-viewport animated canvases are the biggest main-thread cost during
+    // smooth scrolling (nav clicks, momentum scroll). While a scroll is active
+    // the animation loop stays alive but skips frames entirely, so scrolling
+    // and clicks stay responsive; rendering resumes shortly after the scroll
+    // settles.
+    let scrollPauseUntil = 0;
+    const onScroll = () => {
+      scrollPauseUntil = performance.now() + 200;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+
     function render(time: number) {
       if (!image.complete || !image.naturalWidth || width <= 1 || height <= 1) return;
       const cell = Math.max(config.cellSize, isTouch ? 12 : 5);
       const columns = Math.ceil(width / cell) + 2;
       const rows = Math.ceil(height / cell);
-      const photo = canvas2d(width, height);
+      const photo = buffer("photo", width, height);
       const photoContext = photo.getContext("2d", { willReadFrequently: true })!;
       drawCover(photoContext, image, width, height);
 
-      const sampleCanvas = canvas2d(columns, rows);
+      const sampleCanvas = buffer("sample", columns, rows);
       const sampleContext = sampleCanvas.getContext("2d", { willReadFrequently: true })!;
+      sampleContext.clearRect(0, 0, columns, rows);
       sampleContext.imageSmoothingEnabled = true;
       sampleContext.drawImage(photo, 0, 0, columns, rows);
       const sample = sampleContext.getImageData(0, 0, columns, rows);
@@ -922,8 +950,9 @@ export function AsciiArtCanvas({
           255;
       }
 
-      const background = canvas2d(width, height);
+      const background = buffer("background", width, height);
       const backgroundContext = background.getContext("2d")!;
+      backgroundContext.filter = "none";
       backgroundContext.globalAlpha = config.bgOpacity / 100;
       if (config.bgMode === "blurred") {
         backgroundContext.filter = `blur(${config.bgBlur}px)`;
@@ -936,10 +965,12 @@ export function AsciiArtCanvas({
         backgroundContext.fillStyle = "rgba(1,3,9,.76)";
         backgroundContext.fillRect(0, 0, width, height);
       }
+      backgroundContext.filter = "none";
       backgroundContext.globalAlpha = 1;
 
-      const shapes = canvas2d(width, height);
+      const shapes = buffer("shapes", width, height);
       const shapesContext = shapes.getContext("2d")!;
+      shapesContext.clearRect(0, 0, width, height);
       shapesContext.globalCompositeOperation = config.styleBlend;
       const emphasis = config.edgeEmphasis / 100;
       const drift = reducedMotion ? 0 : ((time * 0.005) % (cell * 2)) - cell;
@@ -988,8 +1019,11 @@ export function AsciiArtCanvas({
         }
       }
 
-      const processed = canvas2d(width, height);
+      const processed = buffer("processed", width, height);
       const processedContext = processed.getContext("2d")!;
+      processedContext.clearRect(0, 0, width, height);
+      processedContext.globalCompositeOperation = "source-over";
+      processedContext.filter = "none";
       processedContext.drawImage(background, 0, 0);
       processedContext.filter = `brightness(${100 + config.brightness}%) contrast(${config.contrast}%) saturate(${config.saturation}%) grayscale(${config.grayscale}%)`;
       processedContext.drawImage(shapes, 0, 0);
@@ -1050,7 +1084,10 @@ export function AsciiArtCanvas({
       const shouldAnimate = (config.animated || config.renderMode === "matrix") && !reducedMotion;
       if (time - lastFrame >= 1000 / Math.max(1, frameRate) || !shouldAnimate) {
         lastFrame = time;
-        render(time);
+        // Skip rendering while a scroll is in flight — the previous frame stays
+        // on screen — so nav clicks and touch scrolling never contend with the
+        // full-viewport canvas repaint.
+        if (time >= scrollPauseUntil) render(time);
       }
       if (shouldAnimate) frame = requestAnimationFrame(loop);
       else frame = 0;
@@ -1070,6 +1107,7 @@ export function AsciiArtCanvas({
       intersection.disconnect();
       resize.disconnect();
       window.clearTimeout(resizeTimer);
+      window.removeEventListener("scroll", onScroll);
       media.removeEventListener("change", onMotionChange);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       canvas.parentElement?.removeEventListener("pointermove", onPointerMove);
